@@ -102,4 +102,7 @@ Note: Passwords are stored in plain text in this starter. For production, integr
 ### License
 Add your license here (e.g., MIT).
 
+### Additional Docs
+- See `DOCUMENTATION.md` for a full list of features and API endpoints.
+
 

@@ -10,7 +10,8 @@ import { Clock, CalendarIcon, Users, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface Resource {
-  id: number
+  id?: number
+  _id?: string
   name: string
   type: string
   capacity: number
@@ -52,12 +53,23 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
   const { toast } = useToast()
 
   useEffect(() => {
-    if (selectedDate) {
-      const dateKey = selectedDate.toISOString().split("T")[0]
-      setBookedSlots(mockBookedSlots[dateKey as keyof typeof mockBookedSlots] || [])
-      setSelectedTimeSlot("") // Reset selected slot when date changes
+    if (!selectedDate) return
+    const load = async () => {
+      const dateKey = selectedDate.toISOString().split('T')[0]
+      const resourceId = (resource._id || resource.id)?.toString()
+      if (!resourceId) return
+      try {
+        const resp = await fetch(`/api/bookings?resourceId=${encodeURIComponent(resourceId)}&date=${encodeURIComponent(dateKey)}`)
+        if (!resp.ok) return setBookedSlots([])
+        const data = await resp.json()
+        setBookedSlots(data.slots || [])
+      } catch {
+        setBookedSlots([])
+      }
+      setSelectedTimeSlot("")
     }
-  }, [selectedDate])
+    load()
+  }, [selectedDate, resource])
 
   const handleBooking = async () => {
     if (!selectedDate || !selectedTimeSlot) {
@@ -79,20 +91,26 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
     }
 
     setIsLoading(true)
-
-    // Simulate booking process
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Booking Successful!",
-        description: `${resource.name} has been booked for ${selectedTimeSlot}`,
+    try {
+      const dateKey = selectedDate.toISOString().split('T')[0]
+      const resourceId = (resource._id || resource.id)?.toString()
+      const resp = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resourceId, date: dateKey, timeSlot: selectedTimeSlot })
       })
-
-      const dateKey = selectedDate.toISOString().split("T")[0]
+      setIsLoading(false)
+      if (!resp.ok) {
+        toast({ title: 'Error', description: 'Failed to book slot', variant: 'destructive' })
+        return
+      }
+      toast({ title: 'Booking Successful!', description: `${resource.name} has been booked for ${selectedTimeSlot}` })
       setBookedSlots((prev) => [...prev, selectedTimeSlot])
-
       onClose()
-    }, 1500)
+    } catch (e) {
+      setIsLoading(false)
+      toast({ title: 'Error', description: 'Failed to book slot', variant: 'destructive' })
+    }
   }
 
   const isSlotBooked = (slot: string) => bookedSlots.includes(slot)
