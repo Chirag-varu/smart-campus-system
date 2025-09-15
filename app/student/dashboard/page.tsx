@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/layout/navbar"
 import { StudentSidebar } from "@/components/layout/student-sidebar"
 import { DashboardOverview } from "@/components/student/dashboard-overview"
@@ -13,7 +13,23 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
+
+  // On mount, sync activeTab with localStorage (client only)
+  useEffect(() => {
+    const storedTab = typeof window !== 'undefined' ? localStorage.getItem('studentActiveTab') : null;
+    if (storedTab && storedTab !== activeTab) {
+      setActiveTab(storedTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Keep activeTab in sync with localStorage (for profile navigation)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('studentActiveTab', activeTab)
+    }
+  }, [activeTab])
 
   const renderContent = () => {
     switch (activeTab) {

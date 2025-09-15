@@ -96,11 +96,11 @@ export function BookingHistory() {
 
   const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel?: boolean }) => (
     <Card className="gradient-hover">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg">{booking.resource}</h3>
-            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex-1 w-full">
+            <h3 className="font-semibold text-base sm:text-lg">{booking.resource}</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 {booking.date}
@@ -116,7 +116,7 @@ export function BookingHistory() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             <Badge className={`${getStatusColor(booking.status)} text-white border-0`}>{booking.status}</Badge>
             {showCancel && booking.status !== "cancelled" && (
               <Button
@@ -138,8 +138,8 @@ export function BookingHistory() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Booking History</h1>
-        <p className="text-muted-foreground mt-2">Manage your upcoming bookings and view past reservations.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Booking History</h1>
+        <p className="text-muted-foreground mt-2 text-sm sm:text-base">Manage your upcoming bookings and view past reservations.</p>
       </div>
 
       <Tabs defaultValue="upcoming" className="space-y-6">
@@ -151,12 +151,14 @@ export function BookingHistory() {
         <TabsContent value="upcoming" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Bookings ({bookings.upcoming.length})</CardTitle>
-              <CardDescription>Your scheduled resource reservations</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Upcoming Bookings ({bookings.upcoming.length})</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Your scheduled resource reservations</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {bookings.upcoming.length > 0 ? (
-                bookings.upcoming.map((booking) => <BookingCard key={booking.id} booking={booking} showCancel={true} />)
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {bookings.upcoming.map((booking) => <BookingCard key={booking.id} booking={booking} showCancel={true} />)}
+                </div>
               ) : (
                 <div className="text-center py-8">
                   <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -171,13 +173,15 @@ export function BookingHistory() {
         <TabsContent value="past" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Past Bookings ({bookings.past.length})</CardTitle>
-              <CardDescription>Your booking history and completed reservations</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Past Bookings ({bookings.past.length})</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Your booking history and completed reservations</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {bookings.past.map((booking) => (
-                <BookingCard key={booking.id} booking={booking} />
-              ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {bookings.past.map((booking) => (
+                  <BookingCard key={booking.id} booking={booking} />
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -12,9 +12,9 @@ import { User, Mail, Calendar, Edit } from "lucide-react"
 export function StudentProfile() {
   const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@university.edu",
-    rollNo: "CS2021001",
+    name: "Chirag Varu",
+    email: "chiragvaru.main@gmail.com",
+    rollNo: "53003230110",
     joinDate: "2021-08-15",
     phone: "+1 (555) 123-4567",
     department: "Computer Science",

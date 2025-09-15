@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge"
 import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
 import { useTheme } from "next-themes"
+import { useRouter, usePathname } from "next/navigation"
 
 interface NavbarProps {
   userType: "student" | "admin"
@@ -15,6 +16,8 @@ interface NavbarProps {
 }
 
 export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useState([
@@ -128,11 +131,31 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
                 className="text-white hover:bg-white/10 flex items-center space-x-2 transition-all duration-300 hover:scale-105"
               >
                 <User className="h-5 w-5" />
-                <span className="hidden md:inline">{userName}</span>
+                <span className="hidden md:inline cursor-pointer">{userName}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="cursor-pointer">Profile Settings</DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => {
+                  if (!router) return;
+                  if (userType === 'student') {
+                    // If already on student dashboard, set tab to profile via localStorage
+                    if (pathname && pathname.startsWith('/student/dashboard')) {
+                      localStorage.setItem('studentActiveTab', 'profile');
+                      router.refresh();
+                    } else {
+                      localStorage.setItem('studentActiveTab', 'profile');
+                      router.push('/student/dashboard');
+                    }
+                  } else if (userType === 'admin') {
+                    // For admin, go to dashboard (could be improved if admin profile page exists)
+                    router.push('/admin/dashboard');
+                  }
+                }}
+              >
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Help & Support</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Preferences</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer text-red-600">Sign Out</DropdownMenuItem>
