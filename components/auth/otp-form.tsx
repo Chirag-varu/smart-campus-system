@@ -17,20 +17,27 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
   const [error, setError] = useState("")
   const { toast } = useToast()
 
-  // For demo: OTP is always '123456'
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-    setTimeout(() => {
+    try {
+      const resp = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      })
       setIsLoading(false)
-      if (otp === "123456") {
-        toast({ title: "OTP Verified!", description: "Signup complete." })
+      if (resp.ok) {
+        toast({ title: 'OTP Verified!', description: 'Signup complete.' })
         onVerify()
       } else {
-        setError("Invalid OTP. Please try again.")
+        setError('Invalid or expired OTP. Please try again.')
       }
-    }, 1000)
+    } catch (err) {
+      setIsLoading(false)
+      setError('Something went wrong. Please try again.')
+    }
   }
 
   return (

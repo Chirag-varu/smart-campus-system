@@ -158,7 +158,21 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Help & Support</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">Preferences</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-red-600">Sign Out</DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/logout', { method: 'POST' })
+                  } catch {}
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('userName')
+                    localStorage.removeItem('userEmail')
+                  }
+                  router.push('/')
+                }}
+              >
+                Sign Out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

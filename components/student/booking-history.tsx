@@ -94,46 +94,65 @@ export function BookingHistory() {
     }
   }
 
-  const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel?: boolean }) => (
-    <Card className=" ">
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex-1 w-full">
-            <h3 className="font-semibold text-base sm:text-lg">{booking.resource}</h3>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                {booking.date}
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {booking.time}
-              </div>
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                {booking.type}
-              </div>
+  const getStatusStyle = (status: string) => {
+  switch (status) {
+    case "confirmed":
+      return "bg-green-100 text-green-700 border border-green-200"
+    case "pending":
+      return "bg-yellow-100 text-yellow-700 border border-yellow-200"
+    case "completed":
+      return "bg-blue-100 text-blue-700 border border-blue-200"
+    case "cancelled":
+      return "bg-red-100 text-red-700 border border-red-200"
+    default:
+      return "bg-gray-100 text-gray-600 border border-gray-200"
+  }
+}
+
+const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel?: boolean }) => (
+  <Card className="rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200">
+    <CardContent className="p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        {/* Left Info */}
+        <div className="flex-1">
+          <h3 className="font-semibold text-lg text-gray-900">{booking.resource}</h3>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              {booking.date}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              {booking.time}
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-500" />
+              {booking.type}
             </div>
           </div>
-
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-            <Badge className={`${getStatusColor(booking.status)} text-white border-0`}>{booking.status}</Badge>
-            {showCancel && booking.status !== "cancelled" && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCancelBooking(booking.id)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Cancel
-              </Button>
-            )}
-          </div>
         </div>
-      </CardContent>
-    </Card>
-  )
+
+        {/* Right Side */}
+        <div className="flex items-center gap-3">
+          <Badge className={`${getStatusStyle(booking.status)} px-3 py-1 rounded-full capitalize`}>
+            {booking.status}
+          </Badge>
+          {showCancel && booking.status !== "cancelled" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCancelBooking(booking.id)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-100 transition"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Cancel
+            </Button>
+          )}
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+)
 
   return (
     <div className="space-y-6">

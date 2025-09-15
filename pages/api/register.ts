@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '@/lib/mongodb';
 import nodemailer from 'nodemailer';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -15,13 +16,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (existing) return res.status(409).json({ error: 'User already exists' });
 
     // Save user as unverified
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     await users.insertOne({
       firstName,
       lastName,
       email,
       studentId,
       department,
-      password, // In production, hash this!
+      password: hashedPassword,
       verified: false,
       createdAt: new Date(),
     });

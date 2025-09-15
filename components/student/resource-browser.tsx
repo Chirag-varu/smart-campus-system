@@ -1,81 +1,43 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResourceCard } from "@/components/student/resource-card"
 import { Search, Filter } from "lucide-react"
 
-const mockResources = [
-  {
-    id: 1,
-    name: "Library Study Room A",
-    type: "Library",
-    capacity: 6,
-    status: "available",
-    description: "Quiet study room with whiteboard and projector",
-    amenities: ["Whiteboard", "Projector", "AC"],
-    image: "/modern-library-study-room.jpg",
-  },
-  {
-    id: 2,
-    name: "Computer Lab 2",
-    type: "Labs",
-    capacity: 30,
-    status: "booked",
-    description: "High-performance computers with latest software",
-    amenities: ["30 PCs", "High-speed Internet", "Printer"],
-    image: "/computer-lab-with-modern-pcs.jpg",
-  },
-  {
-    id: 3,
-    name: "Basketball Court",
-    type: "Sports",
-    capacity: 10,
-    status: "available",
-    description: "Full-size basketball court with professional flooring",
-    amenities: ["Professional Court", "Lighting", "Scoreboard"],
-    image: "/indoor-basketball-court.png",
-  },
-  {
-    id: 4,
-    name: "Conference Room B",
-    type: "Library",
-    capacity: 12,
-    status: "available",
-    description: "Large conference room for group discussions",
-    amenities: ["Conference Table", "Video Conferencing", "AC"],
-    image: "/modern-conference-room.png",
-  },
-  {
-    id: 5,
-    name: "Chemistry Lab 1",
-    type: "Labs",
-    capacity: 20,
-    status: "maintenance",
-    description: "Fully equipped chemistry laboratory",
-    amenities: ["Lab Equipment", "Safety Gear", "Fume Hoods"],
-    image: "/chemistry-laboratory.jpg",
-  },
-  {
-    id: 6,
-    name: "Tennis Court 1",
-    type: "Sports",
-    capacity: 4,
-    status: "available",
-    description: "Professional tennis court with night lighting",
-    amenities: ["Professional Court", "Night Lighting", "Equipment Storage"],
-    image: "/outdoor-tennis-court.png",
-  },
-]
+type Resource = {
+  _id: string
+  name: string
+  type: string
+  capacity: number
+  status: string
+  description: string
+  amenities: string[]
+  location?: string
+  bookings?: number
+  image?: string
+}
 
 export function ResourceBrowser() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
+  const [resources, setResources] = useState<Resource[]>([])
 
-  const filteredResources = mockResources.filter((resource) => {
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const resp = await fetch('/api/resources')
+        if (!resp.ok) return
+        const data = await resp.json()
+        setResources(data.resources || [])
+      } catch {}
+    })()
+  }, [])
+
+  const filteredResources = resources.filter((resource) => {
     const matchesSearch =
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -127,7 +89,7 @@ export function ResourceBrowser() {
       {/* Resource Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {filteredResources.map((resource) => (
-          <ResourceCard key={resource.id} resource={resource} />
+          <ResourceCard key={(resource as any)._id || (resource as any).id} resource={resource as any} />
         ))}
       </div>
 

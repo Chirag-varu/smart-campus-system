@@ -30,13 +30,35 @@ export function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    try {
+      if (formData.password !== formData.confirmPassword) {
+        setIsLoading(false)
+        return
+      }
 
-    // Simulate registration and sending OTP
-    setTimeout(() => {
+      const resp = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          studentId: formData.studentId,
+          department: formData.department,
+          password: formData.password,
+        }),
+      })
+
+      if (!resp.ok) {
+        setIsLoading(false)
+        return
+      }
+
       setIsLoading(false)
       setShowOTP(true)
-      // Here, you would send the OTP to the user's email using env email/pass
-    }, 1000)
+    } catch (err) {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {

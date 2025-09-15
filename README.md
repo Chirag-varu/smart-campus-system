@@ -46,6 +46,7 @@ npm run dev
 - `npm run build`: Build for production
 - `npm run start`: Start the production server
 - `npm run lint`: Run linting
+- `npm run seed`: Seed MongoDB with sample users and resources
 
 ### Project Structure (high-level)
 ```
@@ -62,6 +63,15 @@ styles/                 # Global styles
 ### Environment Variables
 - **MONGODB_URI**: MongoDB connection string used by `lib/mongodb.ts`
 - **EMAIL_USER / EMAIL_PASS**: SMTP credentials used by `pages/api/register.ts` to send OTP emails
+
+### Seeding the Database
+Populate MongoDB with sample users and resources:
+```bash
+npm run seed
+```
+The script reads `MONGODB_URI` from your environment or `.env.local`. It upserts:
+- Admin and sample student users (verified=true)
+- Resource documents matching the UI mock data
 
 ### API Endpoints
 - `POST /api/register`

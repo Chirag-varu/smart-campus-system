@@ -21,27 +21,30 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
-    // Simulate authentication
-    setTimeout(() => {
-      // Parse name from email (before @, capitalize)
-      const nameFromEmail = email
-        ? email.split("@")[0].replace(/\./g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-        : userType === "student" ? "Student User" : "Admin User"
-
-      // Store in localStorage for later use
-      if (typeof window !== "undefined") {
-        localStorage.setItem("userName", nameFromEmail)
-        localStorage.setItem("userEmail", email)
+    try {
+      const resp = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      if (!resp.ok) {
+        setIsLoading(false)
+        return
       }
-
-      if (userType === "student") {
-        router.push("/student/dashboard")
+      const data = await resp.json()
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userName', `${data.user.firstName || ''} ${data.user.lastName || ''}`.trim())
+        localStorage.setItem('userEmail', data.user.email)
+      }
+      if (userType === 'student') {
+        router.push('/student/dashboard')
       } else {
-        router.push("/admin/dashboard")
+        router.push('/admin/dashboard')
       }
       setIsLoading(false)
-    }, 1000)
+    } catch (err) {
+      setIsLoading(false)
+    }
   }
 
   return (
