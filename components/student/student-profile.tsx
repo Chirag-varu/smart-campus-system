@@ -29,6 +29,7 @@ export function StudentProfile() {
         const res = await fetch("/api/profile")
         if (!res.ok) throw new Error("Failed to fetch profile")
         const data = await res.json()
+      // console.log("Fetched profile data:", data)
         setProfileData(data.user)
       } catch (err) {
         toast({ title: "Error", description: "Could not load profile.", variant: "destructive" })

@@ -88,7 +88,7 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
   }
 
   return (
-    <nav className="bg-app dark:bg-app-dark border-b border-default px-4 sm:px-6 py-4 transition-colors duration-300">
+    <nav className="bg-app dark:bg-app-dark border-b border-default px-4 sm:px-6 py-4 transition-colors duration-300 z-50">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           {/* Hamburger menu for mobile */}

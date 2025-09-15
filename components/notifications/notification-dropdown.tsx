@@ -54,60 +54,60 @@ export function NotificationDropdown({
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
           <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
-        <div className="flex items-center justify-between p-3 border-b">
-          <h3 className="font-semibold">Notifications</h3>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onMarkAllAsRead}
-              className="text-xs text-primary hover:text-primary/80"
-            >
-              Mark all as read
-            </Button>
-          )}
-        </div>
-
-        <ScrollArea className="max-h-96">
-          {notifications.length > 0 ? (
-            notifications.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className={`p-4 cursor-pointer hover:bg-muted/50 ${!notification.read ? "bg-primary/5" : ""}`}
-                onClick={() => !notification.read && onMarkAsRead(notification.id)}
-              >
-                <div className="flex items-start space-x-3 w-full">
-                  <div className="mt-1">{getNotificationIcon(notification.type)}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p
-                        className={`text-sm font-medium ${!notification.read ? "text-foreground" : "text-muted-foreground"}`}
-                      >
-                        {notification.title}
-                      </p>
-                      {!notification.read && <div className="w-2 h-2 bg-primary rounded-full ml-2" />}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{notification.message}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
-                  </div>
-                </div>
-              </DropdownMenuItem>
-            ))
-          ) : (
-            <div className="p-8 text-center">
-              <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No notifications</p>
-            </div>
-          )}
-        </ScrollArea>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10 dark:text-gray-900 dark:hover:bg-gray-100/10">
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-white text-xs">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 bg-black text-white dark:bg-gray-100 dark:text-gray-900">
+              <div className="flex items-center justify-between p-3 border-b border-gray-700 dark:border-gray-200">
+                <h3 className="font-semibold">Notifications</h3>
+                <button
+                  onClick={onMarkAllAsRead}
+                  className="text-xs text-primary hover:text-primary/80"
+                >
+                  Mark all as read
+                </button>
+              </div>
+              <ScrollArea className="max-h-96">
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground">No notifications</div>
+                ) : (
+                  notifications.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      onClick={() => onMarkAsRead(notification.id)}
+                      className={`p-4 cursor-pointer hover:bg-gray-900/80 dark:hover:bg-gray-200/80 ${!notification.read ? "bg-gray-800 dark:bg-gray-200/60" : ""} text-white dark:text-gray-900`}
+                    >
+                      <div className="flex items-start space-x-3 w-full">
+                        <div className="mt-1">{getNotificationIcon(notification.type)}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span
+                              className={`text-sm font-medium ${!notification.read ? "text-white dark:text-gray-900" : "text-gray-300 dark:text-gray-700"}`}
+                            >
+                              {notification.title}
+                            </span>
+                            {!notification.read && <div className="w-2 h-2 bg-primary rounded-full ml-2" />}
+                          </div>
+                          <p className="text-xs mt-1 line-clamp-2 text-gray-300 dark:text-gray-700">{notification.message}</p>
+                        </div>
+                        <span className="text-xs whitespace-nowrap ml-2 text-gray-400 dark:text-gray-600">{notification.time}</span>
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                )}
+              </ScrollArea>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ Button>
+        {/* </ScrollArea> */}
 
         {notifications.length > 0 && (
           <>
@@ -117,7 +117,7 @@ export function NotificationDropdown({
             </DropdownMenuItem>
           </>
         )}
-      </DropdownMenuContent>
+      </DropdownMenuTrigger>
     </DropdownMenu>
   )
 }

@@ -31,8 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const cookie = `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
     res.setHeader('Set-Cookie', cookie)
 
-    return res.status(200).json({ success: true, user: { email: user.email, firstName: user.firstName, lastName: user.lastName } })
+  // Support both studentName and firstName/lastName for compatibility
+  let firstName = user.firstName || (user.studentName ? user.studentName.split(' ')[0] : '')
+  let lastName = user.lastName || (user.studentName ? user.studentName.split(' ').slice(1).join(' ') : '')
+  return res.status(200).json({ success: true, user: { email: user.email, firstName, lastName } })
   } catch (err) {
+    console.log('====================================');
+    console.log(err);
+    console.log('====================================');
     return res.status(500).json({ error: 'Server error', details: err })
   }
 }

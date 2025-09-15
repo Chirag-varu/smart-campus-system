@@ -1,50 +1,80 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  studentName: { 
-    type: String, 
-    required: true, 
-    trim: true 
+  // For backward compatibility, keep studentName optional
+  studentName: {
+    type: String,
+    trim: true,
+    required: false,
   },
-  email: { 
-    type: String, 
-    required: true, 
-    unique: true, 
-    lowercase: true, 
-    trim: true 
+  firstName: {
+    type: String,
+    trim: true,
+    required: false,
   },
-  password: { 
-    type: String, 
-    required: true 
+  lastName: {
+    type: String,
+    trim: true,
+    required: false,
   },
-  role: { 
-    type: String, 
-    enum: ["student", "librarian", "sportsManager", "admin"], 
-    default: "student" 
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
   },
-  sapId: { 
-    type: String, 
-    required: true, 
-    unique: true, 
-    trim: true 
+  password: {
+    type: String,
+    required: true,
+  },
+  studentId: {
+    type: String,
+    trim: true,
+    required: false,
+  },
+  department: {
+    type: String,
+    trim: true,
+    required: false,
+  },
+  phone: {
+    type: String,
+    trim: true,
+    required: false,
+  },
+  role: {
+    type: String,
+    enum: ["student", "librarian", "sportsManager", "admin"],
+    default: "student",
+  },
+  sapId: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  verified: {
+    type: Boolean,
+    default: false,
   },
   otp: {
-    type: String
+    type: String,
   },
   otpExpires: {
-    type: Date
+    type: Date,
   },
-  imageUrl: { 
-    type: String, 
-    trim: true 
+  imageUrl: {
+    type: String,
+    trim: true,
   },
-  isActive: { 
-    type: Boolean, 
-    default: true 
+  isActive: {
+    type: Boolean,
+    default: true,
   },
-  lastLogin: { 
-    type: Date 
-  }
+  lastLogin: {
+    type: Date,
+  },
 }, {
   timestamps: true // automatically adds createdAt & updatedAt
 });

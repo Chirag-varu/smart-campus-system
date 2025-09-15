@@ -112,7 +112,7 @@ export function BookingHistory() {
 const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel?: boolean }) => (
   <Card className="rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200">
     <CardContent className="p-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:items-start justify-between gap-6">
         {/* Left Info */}
         <div className="flex-1">
           <h3 className="font-semibold text-lg text-gray-900">{booking.resource}</h3>

@@ -31,9 +31,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Fetch user profile
     const user = await users.findOne({ _id: userId });
     if (!user) return res.status(404).json({ error: 'User not found' });
+    // Compose name from studentName, or firstName + lastName fallback
+    let name = user.studentName;
+    if (!name && (user.firstName || user.lastName)) {
+      name = [user.firstName, user.lastName].filter(Boolean).join(' ');
+    }
     return res.status(200).json({
       user: {
-        name: user.studentName,
+        name,
         email: user.email,
         rollNo: user.sapId,
         joinDate: user.createdAt ? user.createdAt.toISOString().slice(0, 10) : '',
