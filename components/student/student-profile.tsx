@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,21 +12,49 @@ import { User, Mail, Calendar, Edit } from "lucide-react"
 export function StudentProfile() {
   const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
-    name: "Chirag Varu",
-    email: "chiragvaru.main@gmail.com",
-    rollNo: "53003230110",
-    joinDate: "2021-08-15",
-    phone: "+1 (555) 123-4567",
-    department: "Computer Science",
+    name: "",
+    email: "",
+    rollNo: "",
+    joinDate: "",
+    phone: "",
+    department: "",
   })
+  const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
-  const handleSave = () => {
-    setIsEditing(false)
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated.",
-    })
+  useEffect(() => {
+    async function fetchProfile() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/profile")
+        if (!res.ok) throw new Error("Failed to fetch profile")
+        const data = await res.json()
+        setProfileData(data.user)
+      } catch (err) {
+        toast({ title: "Error", description: "Could not load profile.", variant: "destructive" })
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProfile()
+  }, [])
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      })
+      if (!res.ok) throw new Error("Failed to update profile")
+      setIsEditing(false)
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      })
+    } catch (err) {
+      toast({ title: "Error", description: "Could not update profile.", variant: "destructive" })
+    }
   }
 
   const stats = [
@@ -35,6 +63,10 @@ export function StudentProfile() {
     { label: "Favorite Resource", value: "Library", color: "text-chart-3" },
     { label: "Member Since", value: "2021", color: "text-chart-4" },
   ]
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Loading profile...</div>
+  }
 
   return (
     <div className="space-y-6">
@@ -65,7 +97,7 @@ export function StudentProfile() {
               <div className="flex items-center space-x-4 mb-6">
                 <Avatar className="h-20 w-20">
                   <AvatarImage src="/diverse-student-profiles.png" />
-                  <AvatarFallback className="text-lg">JD</AvatarFallback>
+                  <AvatarFallback className="text-lg">{profileData.name ? profileData.name[0] : "U"}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="text-xl font-semibold">{profileData.name}</h3>
