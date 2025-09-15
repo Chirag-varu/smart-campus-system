@@ -12,16 +12,16 @@ export default function HomePage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen gradient-primary flex items-center justify-center p-4 transition-colors duration-300">
-        <div className="w-full max-w-md">
+      <div className="min-h-screen gradient-primary flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 transition-colors duration-300">
+        <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2 animate-fade-in">Smart Campus</h1>
-            <p className="text-white/80 animate-fade-in-delay">Resource Management System</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 animate-fade-in">Smart Campus</h1>
+            <p className="text-white/80 animate-fade-in-delay text-base md:text-lg">Resource Management System</p>
           </div>
 
           <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl transition-all duration-300 hover:shadow-3xl animate-slide-up">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl gradient-text">{isLogin ? "Welcome Back" : "Join Smart Campus"}</CardTitle>
+              <CardTitle className="text-xl md:text-2xl gradient-text">{isLogin ? "Welcome Back" : "Join Smart Campus"}</CardTitle>
               <CardDescription>
                 {isLogin ? "Sign in to access your dashboard" : "Create your account to get started"}
               </CardDescription>

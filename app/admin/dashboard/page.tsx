@@ -33,13 +33,13 @@ export default function AdminDashboard() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background transition-colors duration-300">
+      <div className="min-h-screen bg-background transition-colors duration-300 flex flex-col">
         <Navbar userType="admin" userName="Admin User" />
 
-        <div className="flex">
+        <div className="flex flex-col md:flex-row flex-1">
           <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <main className="flex-1 p-6 transition-all duration-300">{renderContent()}</main>
+          <main className="flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 w-full overflow-x-auto">{renderContent()}</main>
         </div>
 
         <ToastNotifications userType="admin" />

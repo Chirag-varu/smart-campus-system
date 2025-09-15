@@ -33,7 +33,7 @@ export function DashboardOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold gradient-text">Welcome back, John!</h1>
+        <h1 className="text-3xl font-bold gradient-text">Welcome back, Chirag Varu!</h1>
         <p className="text-muted-foreground mt-2">Here's what's happening with your bookings today.</p>
       </div>
 

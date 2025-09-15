@@ -11,9 +11,10 @@ import { useTheme } from "next-themes"
 interface NavbarProps {
   userType: "student" | "admin"
   userName: string
+  onMenuClick?: () => void
 }
 
-export function Navbar({ userType, userName }: NavbarProps) {
+export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [notifications, setNotifications] = useState([
@@ -84,9 +85,21 @@ export function Navbar({ userType, userName }: NavbarProps) {
   }
 
   return (
-    <nav className="gradient-primary border-b border-white/10 px-6 py-4 transition-colors duration-300">
+    <nav className="gradient-primary border-b border-white/10 px-4 sm:px-6 py-4 transition-colors duration-300">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          {/* Hamburger menu for mobile */}
+          {onMenuClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white md:hidden mr-2"
+              onClick={onMenuClick}
+              aria-label="Open menu"
+            >
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            </Button>
+          )}
           <h1 className="text-xl font-bold text-white">Smart Campus</h1>
           <Badge variant="secondary" className="bg-white/20 text-white border-0">
             {userType === "admin" ? "Administrator" : "Student"}
@@ -94,13 +107,6 @@ export function Navbar({ userType, userName }: NavbarProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {/* <NotificationDropdown
-            notifications={notifications}
-            unreadCount={unreadCount}
-            onMarkAsRead={markAsRead}
-            onMarkAllAsRead={markAllAsRead}
-          /> */}
-
           <Button
             variant="ghost"
             size="icon"
