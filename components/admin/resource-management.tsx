@@ -189,7 +189,7 @@ export function ResourceManagement() {
 
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
-            <Button className="gradient-primary gradient-hover text-white">
+            <Button className="gradient-primary   text-white">
               <Plus className="h-4 w-4 mr-2" />
               Add Resource
             </Button>
@@ -275,7 +275,7 @@ export function ResourceManagement() {
               <Button variant="outline" onClick={() => setIsAddModalOpen(false)} className="flex-1">
                 Cancel
               </Button>
-              <Button onClick={handleAddResource} className="flex-1 gradient-primary gradient-hover text-white">
+              <Button onClick={handleAddResource} className="flex-1 gradient-primary   text-white">
                 Add Resource
               </Button>
             </div>
@@ -332,7 +332,7 @@ export function ResourceManagement() {
       {/* Resources Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredResources.map((resource) => (
-          <Card key={resource.id} className="gradient-hover">
+          <Card key={resource.id} className=" ">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>

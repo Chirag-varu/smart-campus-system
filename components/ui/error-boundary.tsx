@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <CardDescription>We encountered an unexpected error. Please try refreshing the page.</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
-              <Button onClick={() => window.location.reload()} className="gradient-primary gradient-hover text-white">
+              <Button onClick={() => window.location.reload()} className="gradient-primary   text-white">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Page
               </Button>

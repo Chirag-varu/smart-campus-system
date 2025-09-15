@@ -138,7 +138,7 @@ export function AdminOverview() {
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <Card key={index} className="gradient-hover cursor-pointer">
+            <Card key={index} className="  cursor-pointer">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -229,7 +229,7 @@ export function AdminOverview() {
             </div>
 
             <div className="mt-6">
-              <Button className="w-full gradient-primary gradient-hover text-white">View All Tasks</Button>
+              <Button className="w-full gradient-primary   text-white">View All Tasks</Button>
             </div>
           </CardContent>
         </Card>

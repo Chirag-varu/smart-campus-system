@@ -101,7 +101,7 @@ export function QRCheckIn() {
       {/* Active Bookings */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {activeBookings.map((booking) => (
-          <Card key={booking.id} className="gradient-hover cursor-pointer">
+          <Card key={booking.id} className="  cursor-pointer">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -131,7 +131,7 @@ export function QRCheckIn() {
               </div>
 
               <Button
-                className="w-full gradient-primary gradient-hover text-white"
+                className="w-full gradient-primary   text-white"
                 onClick={() => setSelectedBooking(booking)}
               >
                 <QrCode className="h-4 w-4 mr-2" />
@@ -198,7 +198,7 @@ export function QRCheckIn() {
                 </Button>
                 {selectedBooking.status === "confirmed" && (
                   <Button
-                    className="flex-1 gradient-primary gradient-hover text-white"
+                    className="flex-1 gradient-primary   text-white"
                     onClick={() => {
                       handleCheckIn(selectedBooking.id)
                       setSelectedBooking(null)

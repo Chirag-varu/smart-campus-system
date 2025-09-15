@@ -73,7 +73,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 
   return (
     <>
-      <Card className="overflow-hidden gradient-hover">
+      <Card className="overflow-hidden  ">
         <div className="relative">
           <Image
             src={getImagePath(resource.name) || "/placeholder.svg"}
@@ -118,7 +118,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           </div>
 
           <Button
-            className="w-full gradient-primary gradient-hover text-white"
+            className="w-full gradient-primary   text-white"
             disabled={resource.status !== "available"}
             onClick={() => setShowBookingModal(true)}
           >

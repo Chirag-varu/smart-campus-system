@@ -95,7 +95,7 @@ export function BookingHistory() {
   }
 
   const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel?: boolean }) => (
-    <Card className="gradient-hover">
+    <Card className=" ">
       <CardContent className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex-1 w-full">

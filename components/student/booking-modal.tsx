@@ -205,7 +205,7 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
           <Button
             onClick={handleBooking}
             disabled={isLoading || !selectedDate || !selectedTimeSlot || isSlotBooked(selectedTimeSlot)}
-            className="flex-1 gradient-primary gradient-hover text-white"
+            className="flex-1 gradient-primary   text-white"
           >
             {isLoading ? "Booking..." : "Confirm Booking"}
           </Button>

@@ -30,7 +30,7 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
                 variant="ghost"
                 className={cn(
                   "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200",
-                  activeTab === item.id && "bg-sidebar-primary text-sidebar-primary-foreground gradient-hover",
+                  activeTab === item.id && "bg-sidebar-primary text-sidebar-primary-foreground  ",
                 )}
                 onClick={() => onTabChange(item.id)}
               >

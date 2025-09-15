@@ -136,11 +136,11 @@
     background-clip: text;
   }
 
-  .gradient-hover {
+  .  {
     transition: all 0.3s ease;
   }
 
-  .gradient-hover:hover {
+  . :hover {
     background: linear-gradient(135deg, oklch(0.6 0.25 264), oklch(0.7 0.28 295), oklch(0.65 0.23 195));
     transform: translateY(-2px);
     box-shadow: 0 10px 25px -5px oklch(0.55 0.22 264 / 0.3);
@@ -190,7 +190,7 @@
     background: linear-gradient(135deg, oklch(0.6 0.25 264), oklch(0.7 0.28 295), oklch(0.65 0.23 195));
   }
 
-  .dark .gradient-hover:hover {
+  .dark . :hover {
     background: linear-gradient(135deg, oklch(0.65 0.28 264), oklch(0.75 0.3 295), oklch(0.7 0.25 195));
     box-shadow: 0 10px 25px -5px oklch(0.6 0.25 264 / 0.4);
   }

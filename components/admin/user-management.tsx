@@ -150,7 +150,7 @@ export function UserManagement() {
           <p className="text-muted-foreground mt-2">Manage student accounts and permissions.</p>
         </div>
 
-        <Button className="gradient-primary gradient-hover text-white">
+        <Button className="gradient-primary   text-white">
           <UserPlus className="h-4 w-4 mr-2" />
           Add User
         </Button>

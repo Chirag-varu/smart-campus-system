@@ -130,7 +130,7 @@ export function AnalyticsDashboard() {
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <Card key={index} className="gradient-hover">
+            <Card key={index} className=" ">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
