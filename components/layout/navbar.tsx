@@ -1,0 +1,139 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Moon, Sun, User } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import { NotificationDropdown } from "@/components/notifications/notification-dropdown"
+import { useTheme } from "next-themes"
+
+interface NavbarProps {
+  userType: "student" | "admin"
+  userName: string
+}
+
+export function Navbar({ userType, userName }: NavbarProps) {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "Booking Confirmed",
+      message: "Your library slot has been confirmed for tomorrow",
+      time: "2 minutes ago",
+      read: false,
+      type: "success" as const,
+    },
+    {
+      id: 2,
+      title: "New Resource Available",
+      message: "Computer Lab 3 is now available for booking",
+      time: "1 hour ago",
+      read: false,
+      type: "info" as const,
+    },
+    {
+      id: 3,
+      title: "Maintenance Scheduled",
+      message: "Chemistry Lab 1 will be under maintenance tomorrow",
+      time: "3 hours ago",
+      read: true,
+      type: "warning" as const,
+    },
+  ])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const unreadCount = notifications.filter((n) => !n.read).length
+
+  const toggleDarkMode = () => {
+    setTheme(theme === "dark" ? "light" : "dark")
+  }
+
+  const markAsRead = (id: number) => {
+    setNotifications((prev) =>
+      prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+    )
+  }
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
+  }
+
+  if (!mounted) {
+    return (
+      <nav className="gradient-primary border-b border-white/10 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold text-white">Smart Campus</h1>
+            <Badge variant="secondary" className="bg-white/20 text-white border-0">
+              {userType === "admin" ? "Administrator" : "Student"}
+            </Badge>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10" /> {/* Placeholder for notifications */}
+            <div className="w-10 h-10" /> {/* Placeholder for theme toggle */}
+            <div className="w-20 h-10" /> {/* Placeholder for user menu */}
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
+  return (
+    <nav className="gradient-primary border-b border-white/10 px-6 py-4 transition-colors duration-300">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-bold text-white">Smart Campus</h1>
+          <Badge variant="secondary" className="bg-white/20 text-white border-0">
+            {userType === "admin" ? "Administrator" : "Student"}
+          </Badge>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          {/* <NotificationDropdown
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onMarkAsRead={markAsRead}
+            onMarkAllAsRead={markAllAsRead}
+          /> */}
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleDarkMode}
+            className="text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all duration-300" />
+            ) : (
+              <Moon className="h-5 w-5 rotate-0 scale-100 transition-all duration-300" />
+            )}
+          </Button>
+
+          {/* User Profile */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-white/10 flex items-center space-x-2 transition-all duration-300 hover:scale-105"
+              >
+                <User className="h-5 w-5" />
+                <span className="hidden md:inline">{userName}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem className="cursor-pointer">Profile Settings</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">Help & Support</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">Preferences</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer text-red-600">Sign Out</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </nav>
+  )
+}
