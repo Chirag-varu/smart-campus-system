@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import clientPromise from '@/lib/mongodb'
 
-function parseCookies(cookieHeader: string | undefined) {
+function parseCookies(cookieHeader?: string) {
   const header = cookieHeader || ''
   const entries = header.split(';').map(p => p.trim()).filter(Boolean).map(p => {
     const idx = p.indexOf('=')
@@ -14,22 +14,29 @@ function parseCookies(cookieHeader: string | undefined) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).end()
   try {
-    const cookies = parseCookies(req.headers.cookie)
-    const token = cookies.session
-    if (!token) return res.status(401).json({ error: 'Not authenticated' })
-
     const client = await clientPromise
     const db = client.db()
     const sessions = db.collection('sessions')
     const users = db.collection('users')
 
+    const cookies = parseCookies(req.headers.cookie)
+    const token = cookies.session
+    if (!token) return res.status(401).json({ error: 'Not authenticated' })
     const session = await sessions.findOne({ token, expiresAt: { $gt: new Date() } })
     if (!session) return res.status(401).json({ error: 'Not authenticated' })
+    const me = await users.findOne({ _id: session.userId })
+    if (!me || me.role !== 'admin') return res.status(403).json({ error: 'Forbidden' })
 
-    const user = await users.findOne({ _id: session.userId })
-    if (!user) return res.status(401).json({ error: 'Not authenticated' })
-
-    return res.status(200).json({ user: { email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role || 'student' } })
+    const q = (req.query.q as string) || ''
+    const filter = q
+      ? { $or: [
+          { email: { $regex: q, $options: 'i' } },
+          { firstName: { $regex: q, $options: 'i' } },
+          { lastName: { $regex: q, $options: 'i' } }
+        ] }
+      : {}
+    const list = await users.find(filter).project({ password: 0 }).limit(100).toArray()
+    return res.status(200).json({ users: list })
   } catch (err) {
     return res.status(500).json({ error: 'Server error', details: err })
   }

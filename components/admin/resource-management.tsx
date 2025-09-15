@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,67 +19,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Plus, Search, Edit, Trash2, Settings, MapPin, Users } from "lucide-react"
 
-interface Resource {
-  id: number
-  name: string
-  type: string
-  capacity: number
-  status: "active" | "maintenance" | "inactive"
-  description: string
-  amenities: string[]
-  location: string
-  bookings: number
-}
+interface Resource { _id: string; name: string; type: string; capacity: number; status: "active" | "maintenance" | "inactive"; description: string; amenities: string[]; location: string; bookings: number }
 
-const mockResources: Resource[] = [
-  {
-    id: 1,
-    name: "Library Study Room A",
-    type: "Library",
-    capacity: 6,
-    status: "active",
-    description: "Quiet study room with whiteboard and projector",
-    amenities: ["Whiteboard", "Projector", "AC"],
-    location: "Library Building, Floor 2",
-    bookings: 24,
-  },
-  {
-    id: 2,
-    name: "Computer Lab 2",
-    type: "Labs",
-    capacity: 30,
-    status: "active",
-    description: "High-performance computers with latest software",
-    amenities: ["30 PCs", "High-speed Internet", "Printer"],
-    location: "Engineering Building, Floor 1",
-    bookings: 18,
-  },
-  {
-    id: 3,
-    name: "Basketball Court",
-    type: "Sports",
-    capacity: 10,
-    status: "active",
-    description: "Full-size basketball court with professional flooring",
-    amenities: ["Professional Court", "Lighting", "Scoreboard"],
-    location: "Sports Complex",
-    bookings: 32,
-  },
-  {
-    id: 4,
-    name: "Chemistry Lab 1",
-    type: "Labs",
-    capacity: 20,
-    status: "maintenance",
-    description: "Fully equipped chemistry laboratory",
-    amenities: ["Lab Equipment", "Safety Gear", "Fume Hoods"],
-    location: "Science Building, Floor 3",
-    bookings: 0,
-  },
-]
+const mockResources: Resource[] = []
 
 export function ResourceManagement() {
-  const [resources, setResources] = useState(mockResources)
+  const [resources, setResources] = useState<Resource[]>(mockResources)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -97,6 +42,15 @@ export function ResourceManagement() {
     location: "",
   })
 
+  useEffect(() => {
+    ;(async () => {
+      const resp = await fetch('/api/admin/resources')
+      if (!resp.ok) return
+      const data = await resp.json()
+      setResources(data.resources || [])
+    })()
+  }, [])
+
   const filteredResources = resources.filter((resource) => {
     const matchesSearch =
       resource.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,7 +61,7 @@ export function ResourceManagement() {
     return matchesSearch && matchesType && matchesStatus
   })
 
-  const handleAddResource = () => {
+  const handleAddResource = async () => {
     if (!newResource.name || !newResource.type || !newResource.capacity) {
       toast({
         title: "Error",
@@ -117,22 +71,22 @@ export function ResourceManagement() {
       return
     }
 
-    const resource: Resource = {
-      id: Date.now(),
+    const payload = {
       name: newResource.name,
       type: newResource.type,
       capacity: Number.parseInt(newResource.capacity),
       status: newResource.status,
       description: newResource.description,
-      amenities: newResource.amenities
-        .split(",")
-        .map((a) => a.trim())
-        .filter((a) => a),
+      amenities: newResource.amenities.split(",").map((a) => a.trim()).filter((a) => a),
       location: newResource.location,
-      bookings: 0,
     }
 
-    setResources((prev) => [...prev, resource])
+    const resp = await fetch('/api/admin/resources', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    })
+    if (!resp.ok) return
+    const data = await resp.json()
+    setResources((prev) => [...prev, data.resource])
     setNewResource({
       name: "",
       type: "",
@@ -150,16 +104,20 @@ export function ResourceManagement() {
     })
   }
 
-  const handleDeleteResource = (id: number) => {
-    setResources((prev) => prev.filter((resource) => resource.id !== id))
+  const handleDeleteResource = async (id: string) => {
+    const resp = await fetch(`/api/admin/resources?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+    if (!resp.ok) return
+    setResources((prev) => prev.filter((resource) => resource._id !== id))
     toast({
       title: "Resource Deleted",
       description: "Resource has been successfully deleted.",
     })
   }
 
-  const handleStatusChange = (id: number, newStatus: "active" | "maintenance" | "inactive") => {
-    setResources((prev) => prev.map((resource) => (resource.id === id ? { ...resource, status: newStatus } : resource)))
+  const handleStatusChange = async (id: string, newStatus: "active" | "maintenance" | "inactive") => {
+    const resp = await fetch('/api/admin/resources', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status: newStatus }) })
+    if (!resp.ok) return
+    setResources((prev) => prev.map((resource) => (resource._id === id ? { ...resource, status: newStatus } : resource)))
     toast({
       title: "Status Updated",
       description: "Resource status has been updated.",
@@ -332,7 +290,7 @@ export function ResourceManagement() {
       {/* Resources Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredResources.map((resource) => (
-          <Card key={resource.id} className=" ">
+          <Card key={resource._id} className=" ">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -369,7 +327,7 @@ export function ResourceManagement() {
               </div>
 
               <div className="flex gap-2">
-                <Select value={resource.status} onValueChange={(value: any) => handleStatusChange(resource.id, value)}>
+                <Select value={resource.status} onValueChange={(value: any) => handleStatusChange(resource._id, value)}>
                   <SelectTrigger className="flex-1">
                     <SelectValue />
                   </SelectTrigger>
@@ -387,7 +345,7 @@ export function ResourceManagement() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleDeleteResource(resource.id)}
+                  onClick={() => handleDeleteResource(resource._id)}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />

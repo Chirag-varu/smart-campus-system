@@ -20,8 +20,9 @@ Session storage:
 
 ### Database & Seeding
 - Seed script: `npm run seed` executes `scripts/seed.js`.
-  - Upserts admin and sample student users with hashed passwords.
-  - Upserts `resources` matching UI mock data.
+  - Upserts admin and sample student users with hashed passwords and roles (`admin`/`student`).
+  - Upserts `resources` matching UI.
+  - Adds sample bookings (pending and approved) for demo.
   - Creates indexes for `users.email` and `otps.email`.
   - Reads `MONGODB_URI` from environment or `.env.local`.
 
@@ -30,11 +31,15 @@ Session storage:
 
 ### Resources
 - Fetch resources (`GET /api/resources`): Returns all resource documents from `resources`.
+- Admin resources (`GET/POST/PATCH/DELETE /api/admin/resources`): CRUD with role guard.
 - UI (`components/student/resource-browser.tsx`): Loads resources from `/api/resources` and filters client-side.
+- UI (`components/admin/resource-management.tsx`): Uses admin resources API (no static mocks).
 
 ### Bookings
 - Create booking (`POST /api/bookings`): Auth required. Body `{ resourceId, date: 'YYYY-MM-DD', timeSlot: string }`. Prevents duplicate bookings for the same `resourceId+date+timeSlot`.
 - Get booked slots (`GET /api/bookings?resourceId=...&date=YYYY-MM-DD`): Returns `{ slots: string[] }`.
+- Admin list (`GET /api/admin/bookings`): Returns bookings enriched with `user` and `resource`.
+- Approve/Reject (`PATCH /api/bookings`): Body `{ id, status: 'approved' | 'rejected' }` (admin only).
 - UI (`components/student/booking-modal.tsx`): Fetches booked time slots and posts new bookings; updates UI accordingly.
 
 ### Components Updated

@@ -119,11 +119,11 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-[var(--sc-text-white)]">
             <CalendarIcon className="h-5 w-5" />
             Book {resource.name}
           </DialogTitle>
-          <DialogDescription>Select your preferred date and time slot for booking.</DialogDescription>
+          <DialogDescription className="text-muted-foreground">Select your preferred date and time slot for booking.</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

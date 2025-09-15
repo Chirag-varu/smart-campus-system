@@ -71,7 +71,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const session = await sessions.findOne({ token, expiresAt: { $gt: new Date() } })
       if (!session) return res.status(401).json({ error: 'Not authenticated' })
 
-      // Basic admin check placeholder: any verified user can approve/reject. Extend with roles as needed.
+      // Admin guard
+      const user = await users.findOne({ _id: session.userId })
+      if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' })
       const { id, status } = req.body as { id?: string; status?: 'approved' | 'rejected' }
       if (!id || !status) return res.status(400).json({ error: 'Missing id or status' })
 

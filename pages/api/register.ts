@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
-  const { firstName, lastName, email, studentId, department, password } = req.body;
+  const { firstName, lastName, email, studentId, department, password, role } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Missing required fields' });
 
   try {
@@ -24,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       email,
       studentId,
       department,
+      role: role === 'admin' ? 'admin' : 'student',
       password: hashedPassword,
       verified: false,
       createdAt: new Date(),

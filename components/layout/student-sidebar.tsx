@@ -20,8 +20,8 @@ const sidebarItems = [
 
 export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) {
   return (
-    <div className="h-full flex flex-col p-4">
-      <nav className="space-y-2">
+    <div className="h-full flex flex-col p-4 bg-app dark:bg-app-dark border-r border-default">
+      <nav className="space-y-1">
         {sidebarItems.map((item) => {
           const Icon = item.icon
           return (
@@ -29,8 +29,8 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
               key={item.id}
               variant="ghost"
               className={cn(
-                "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200",
-                activeTab === item.id && "bg-sidebar-primary text-sidebar-primary-foreground  ",
+                "w-full justify-start text-gray-700 dark:text-[var(--sc-text-white)] hover:bg-[var(--sc-gray-light)]/10 transition-all duration-200 rounded-md",
+                activeTab === item.id && "bg-[var(--sc-gray-light)]/20 text-gray-900 dark:text-[var(--sc-text-white)] border-l-2 border-default",
               )}
               onClick={() => onTabChange(item.id)}
             >

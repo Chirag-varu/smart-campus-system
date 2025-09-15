@@ -40,6 +40,7 @@ async function main() {
     const users = db.collection("users");
     const resources = db.collection("resources");
     const otps = db.collection("otps");
+    const bookings = db.collection("bookings");
 
     // Indexes
     await users.createIndex({ email: 1 }, { unique: true });
@@ -54,6 +55,7 @@ async function main() {
         email: "admin@campus.test",
         studentId: "A000",
         department: "Administration",
+        role: 'admin',
         sapId: "SAP0001",
         password: await bcrypt.hash("admin123", 10),
         verified: true,
@@ -65,6 +67,7 @@ async function main() {
         email: "chiragvaru.main@gmail.com",
         studentId: "S001",
         department: "Computer Science",
+        role: 'student',
         sapId: "SAP0002",
         password: await bcrypt.hash("student123", 10),
         verified: true,
@@ -136,9 +139,27 @@ async function main() {
       );
     }
 
+    // Sample bookings (pending and approved)
+    const student = await users.findOne({ email: "chiragvaru.main@gmail.com" })
+    const lib = await resources.findOne({ name: "Library Study Room A" })
+    const lab = await resources.findOne({ name: "Computer Lab 2" })
+    if (student && lib && lab) {
+      await bookings.updateOne(
+        { userId: student._id, resourceId: lib._id, date: "2025-09-20", timeSlot: "10:00 AM - 11:00 AM" },
+        { $setOnInsert: { userId: student._id, resourceId: lib._id, date: "2025-09-20", timeSlot: "10:00 AM - 11:00 AM", status: 'pending', createdAt: new Date() } },
+        { upsert: true }
+      )
+      await bookings.updateOne(
+        { userId: student._id, resourceId: lab._id, date: "2025-09-21", timeSlot: "2:00 PM - 3:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: lab._id, date: "2025-09-21", timeSlot: "2:00 PM - 3:00 PM", status: 'approved', createdAt: new Date() } },
+        { upsert: true }
+      )
+    }
+
     const usersCount = await users.countDocuments();
     const resourcesCount = await resources.countDocuments();
-    console.log(`Seed complete. Users: ${usersCount}, Resources: ${resourcesCount}`);
+    const bookingsCount = await bookings.countDocuments();
+    console.log(`Seed complete. Users: ${usersCount}, Resources: ${resourcesCount}, Bookings: ${bookingsCount}`);
   } catch (err) {
     console.error("Seed failed:", err);
     process.exitCode = 1;

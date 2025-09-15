@@ -157,7 +157,7 @@ const BookingCard = ({ booking, showCancel = false }: { booking: any; showCancel
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold gradient-text">Booking History</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[var(--sc-text-white)]">Booking History</h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base">Manage your upcoming bookings and view past reservations.</p>
       </div>
 

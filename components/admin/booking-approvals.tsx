@@ -27,7 +27,7 @@ export function BookingApprovals() {
   useEffect(() => {
     ;(async () => {
       try {
-        const resp = await fetch('/api/bookings')
+        const resp = await fetch('/api/admin/bookings')
         if (!resp.ok) return
         const data = await resp.json()
         setBookingRequests(data.bookings || [])
