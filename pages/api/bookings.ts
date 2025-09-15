@@ -17,15 +17,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = client.db()
     const sessions = db.collection('sessions')
     const bookings = db.collection('bookings')
+    const users = db.collection('users')
 
     if (req.method === 'GET') {
-      const { resourceId, date } = req.query
+      const { resourceId, date, mine } = req.query
       if (resourceId && date) {
-        const items = await bookings.find({ resourceId, date }).project({ timeSlot: 1, _id: 0 }).toArray()
+        const items = await bookings.find({ resourceId, date, status: { $ne: 'rejected' } }).project({ timeSlot: 1, _id: 0 }).toArray()
         const slots = items.map(i => i.timeSlot)
         return res.status(200).json({ slots })
       }
-      return res.status(400).json({ error: 'Missing resourceId or date' })
+      if (mine === 'true') {
+        const cookies = parseCookies(req.headers.cookie)
+        const token = cookies.session
+        if (!token) return res.status(401).json({ error: 'Not authenticated' })
+        const session = await sessions.findOne({ token, expiresAt: { $gt: new Date() } })
+        if (!session) return res.status(401).json({ error: 'Not authenticated' })
+        const items = await bookings.find({ userId: session.userId }).sort({ createdAt: -1 }).toArray()
+        return res.status(200).json({ bookings: items })
+      }
+      // Admin list (all)
+      const items = await bookings.find({}).sort({ createdAt: -1 }).toArray()
+      return res.status(200).json({ bookings: items })
     }
 
     if (req.method === 'POST') {
@@ -46,9 +58,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         resourceId,
         date,
         timeSlot,
+        status: 'pending',
         createdAt: new Date(),
       })
       return res.status(201).json({ success: true })
+    }
+
+    if (req.method === 'PATCH') {
+      const cookies = parseCookies(req.headers.cookie)
+      const token = cookies.session
+      if (!token) return res.status(401).json({ error: 'Not authenticated' })
+      const session = await sessions.findOne({ token, expiresAt: { $gt: new Date() } })
+      if (!session) return res.status(401).json({ error: 'Not authenticated' })
+
+      // Basic admin check placeholder: any verified user can approve/reject. Extend with roles as needed.
+      const { id, status } = req.body as { id?: string; status?: 'approved' | 'rejected' }
+      if (!id || !status) return res.status(400).json({ error: 'Missing id or status' })
+
+      const { ObjectId } = require('mongodb')
+      const _id = new ObjectId(id)
+      await bookings.updateOne({ _id }, { $set: { status, updatedAt: new Date() } })
+      return res.status(200).json({ success: true })
     }
 
     return res.status(405).end()

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,89 +9,53 @@ import { useToast } from "@/hooks/use-toast"
 import { CheckCircle, XCircle, Clock, Calendar, MapPin, User } from "lucide-react"
 
 interface BookingRequest {
-  id: number
-  studentName: string
-  studentId: string
-  resource: string
-  resourceType: string
+  _id: string
+  userId: string
+  resourceId: string
   date: string
-  time: string
+  timeSlot: string
   status: "pending" | "approved" | "rejected"
-  requestDate: string
-  reason?: string
+  createdAt: string
 }
 
-const mockBookingRequests: BookingRequest[] = [
-  {
-    id: 1,
-    studentName: "John Doe",
-    studentId: "CS2021001",
-    resource: "Conference Room A",
-    resourceType: "Library",
-    date: "2024-01-20",
-    time: "2:00 PM - 4:00 PM",
-    status: "pending",
-    requestDate: "2024-01-15",
-  },
-  {
-    id: 2,
-    studentName: "Jane Smith",
-    studentId: "EE2021045",
-    resource: "Chemistry Lab 2",
-    resourceType: "Labs",
-    date: "2024-01-22",
-    time: "10:00 AM - 12:00 PM",
-    status: "pending",
-    requestDate: "2024-01-14",
-  },
-  {
-    id: 3,
-    studentName: "Mike Johnson",
-    studentId: "ME2020123",
-    resource: "Basketball Court",
-    resourceType: "Sports",
-    date: "2024-01-18",
-    time: "6:00 PM - 8:00 PM",
-    status: "approved",
-    requestDate: "2024-01-12",
-  },
-  {
-    id: 4,
-    studentName: "Sarah Wilson",
-    studentId: "CS2021078",
-    resource: "Computer Lab 3",
-    resourceType: "Labs",
-    date: "2024-01-19",
-    time: "1:00 PM - 3:00 PM",
-    status: "rejected",
-    requestDate: "2024-01-13",
-    reason: "Resource under maintenance",
-  },
-  {
-    id: 5,
-    studentName: "David Brown",
-    studentId: "PH2021056",
-    resource: "Physics Lab 1",
-    resourceType: "Labs",
-    date: "2024-01-21",
-    time: "9:00 AM - 11:00 AM",
-    status: "pending",
-    requestDate: "2024-01-16",
-  },
-]
+const mockBookingRequests: BookingRequest[] = []
 
 export function BookingApprovals() {
-  const [bookingRequests, setBookingRequests] = useState(mockBookingRequests)
+  const [bookingRequests, setBookingRequests] = useState<BookingRequest[]>(mockBookingRequests)
   const { toast } = useToast()
 
-  const handleApproval = (id: number, status: "approved" | "rejected", reason?: string) => {
-    setBookingRequests((prev) => prev.map((request) => (request.id === id ? { ...request, status, reason } : request)))
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const resp = await fetch('/api/bookings')
+        if (!resp.ok) return
+        const data = await resp.json()
+        setBookingRequests(data.bookings || [])
+      } catch {}
+    })()
+  }, [])
 
-    const action = status === "approved" ? "approved" : "rejected"
+  const handleApproval = async (id: string, status: "approved" | "rejected") => {
+    try {
+      const resp = await fetch('/api/bookings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status })
+      })
+      if (!resp.ok) {
+        toast({ title: 'Error', description: 'Failed to update booking', variant: 'destructive' })
+        return
+      }
+      setBookingRequests((prev) => prev.map((request) => (request._id === id ? { ...request, status } : request)))
+
+      const action = status === "approved" ? "approved" : "rejected"
     toast({
       title: `Booking ${action}`,
       description: `The booking request has been ${action}.`,
     })
+    } catch {
+      toast({ title: 'Error', description: 'Failed to update booking', variant: 'destructive' })
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -129,15 +93,15 @@ export function BookingApprovals() {
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg">{request.resource}</h3>
+            <h3 className="font-semibold text-lg">Resource #{request.resourceId}</h3>
             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <User className="h-4 w-4" />
-                {request.studentName} ({request.studentId})
+                User {request.userId}
               </div>
               <div className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
-                {request.resourceType}
+                Booking
               </div>
             </div>
           </div>
@@ -155,7 +119,7 @@ export function BookingApprovals() {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4" />
-            <span>Time: {request.time}</span>
+            <span>Time: {request.timeSlot}</span>
           </div>
         </div>
 
@@ -171,14 +135,14 @@ export function BookingApprovals() {
         {showActions && request.status === "pending" && (
           <div className="flex gap-3">
             <Button
-              onClick={() => handleApproval(request.id, "approved")}
+              onClick={() => handleApproval(request._id, "approved")}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Approve
             </Button>
             <Button
-              onClick={() => handleApproval(request.id, "rejected", "Request denied by administrator")}
+              onClick={() => handleApproval(request._id, "rejected")}
               variant="outline"
               className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
@@ -252,7 +216,7 @@ export function BookingApprovals() {
             </CardHeader>
             <CardContent className="space-y-4">
               {pendingRequests.length > 0 ? (
-                pendingRequests.map((request) => <BookingCard key={request.id} request={request} showActions={true} />)
+                pendingRequests.map((request) => <BookingCard key={request._id} request={request} showActions={true} />)
               ) : (
                 <div className="text-center py-8">
                   <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

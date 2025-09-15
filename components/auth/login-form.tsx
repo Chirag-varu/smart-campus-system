@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
 import { Eye, EyeOff, User, Lock } from "lucide-react"
 
 export function LoginForm() {
@@ -16,12 +15,14 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [userType, setUserType] = useState<"student" | "admin">("student")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     try {
+      setError("")
       const resp = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,6 +30,12 @@ export function LoginForm() {
       })
       if (!resp.ok) {
         setIsLoading(false)
+        try {
+          const data = await resp.json()
+          setError(data?.error || 'Login failed')
+        } catch {
+          setError('Login failed')
+        }
         return
       }
       const data = await resp.json()
@@ -44,6 +51,7 @@ export function LoginForm() {
       setIsLoading(false)
     } catch (err) {
       setIsLoading(false)
+      setError('Something went wrong. Please try again.')
     }
   }
 
@@ -53,7 +61,7 @@ export function LoginForm() {
       <div className="flex gap-2">
         <Button
           type="button"
-          variant={userType === "student" ? "default" : "outline"}
+          variant={userType === "student" ? "outline" : "default"}
           onClick={() => setUserType("student")}
           className="flex-1 transition-all duration-200"
         >
@@ -62,7 +70,7 @@ export function LoginForm() {
         </Button>
         <Button
           type="button"
-          variant={userType === "admin" ? "default" : "outline"}
+          variant={userType === "student" ? "default" : "outline"}
           onClick={() => setUserType("admin")}
           className="flex-1 transition-all duration-200"
         >
@@ -77,7 +85,7 @@ export function LoginForm() {
         <Input
           id="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder={userType === 'student' ? 'Enter student email' : 'Enter admin email'}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -114,18 +122,9 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Demo Credentials */}
-      <Card className="p-3 bg-muted/50">
-        <p className="text-xs text-muted-foreground mb-2">Demo Credentials:</p>
-        <div className="text-xs space-y-1">
-          <p>
-            <strong>Student:</strong> student@campus.edu / password
-          </p>
-          <p>
-            <strong>Admin:</strong> admin@campus.edu / password
-          </p>
-        </div>
-      </Card>
+      {error && (
+        <div className="text-red-600 text-sm" role="alert">{error}</div>
+      )}
 
       {/* Submit Button */}
       <Button
@@ -135,6 +134,12 @@ export function LoginForm() {
       >
         {isLoading ? "Signing in..." : "Sign In"}
       </Button>
+
+      {/* Demo credentials (subtle hint) */}
+      <div className="text-[11px] text-muted-foreground mt-2 space-y-0.5">
+        <div>Demo Admin: admin@campus.test / admin123</div>
+        <div>Demo Student: chiragvaru.main@gmail.com / student123</div>
+      </div>
     </form>
   )
 }

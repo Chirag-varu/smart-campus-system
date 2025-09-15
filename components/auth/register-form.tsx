@@ -24,6 +24,7 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const [showOTP, setShowOTP] = useState(false)
   const router = useRouter()
 
@@ -31,8 +32,10 @@ export function RegisterForm() {
     e.preventDefault()
     setIsLoading(true)
     try {
+      setError("")
       if (formData.password !== formData.confirmPassword) {
         setIsLoading(false)
+        setError('Passwords do not match')
         return
       }
 
@@ -51,6 +54,12 @@ export function RegisterForm() {
 
       if (!resp.ok) {
         setIsLoading(false)
+        try {
+          const data = await resp.json()
+          setError(data?.error || 'Registration failed')
+        } catch {
+          setError('Registration failed')
+        }
         return
       }
 
@@ -198,6 +207,9 @@ export function RegisterForm() {
           </Button>
         </div>
       </div>
+
+      {/* Error */}
+      {error && <div className="text-red-600 text-sm" role="alert">{error}</div>}
 
       {/* Submit Button */}
       <Button

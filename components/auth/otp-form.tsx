@@ -40,6 +40,27 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
     }
   }
 
+  const handleResend = async () => {
+    setIsLoading(true)
+    setError("")
+    try {
+      const resp = await fetch('/api/generate-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      setIsLoading(false)
+      if (resp.ok) {
+        toast({ title: 'OTP Sent', description: 'A new OTP has been sent to your email.' })
+      } else {
+        setError('Failed to resend OTP. Please try again later.')
+      }
+    } catch (err) {
+      setIsLoading(false)
+      setError('Failed to resend OTP. Please try again later.')
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       <Card className="p-6">
@@ -59,6 +80,9 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
         {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
         <Button type="submit" className="w-full mt-6" disabled={isLoading}>
           {isLoading ? "Verifying..." : "Verify"}
+        </Button>
+        <Button type="button" variant="outline" className="w-full mt-2" onClick={handleResend} disabled={isLoading}>
+          Resend OTP
         </Button>
       </Card>
     </form>

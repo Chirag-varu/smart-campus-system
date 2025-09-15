@@ -69,7 +69,7 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
 
   if (!mounted) {
     return (
-      <nav className="gradient-primary border-b border-white/10 px-6 py-4">
+      <nav className="bg-app dark:bg-app-dark border-b border-default px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-bold text-white">Smart Campus</h1>
@@ -88,7 +88,7 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
   }
 
   return (
-    <nav className="gradient-primary border-b border-white/10 px-4 sm:px-6 py-4 transition-colors duration-300">
+    <nav className="bg-app dark:bg-app-dark border-b border-default px-4 sm:px-6 py-4 transition-colors duration-300">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           {/* Hamburger menu for mobile */}
@@ -103,8 +103,8 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
               <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-menu"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
             </Button>
           )}
-          <h1 className="text-xl font-bold text-white">Smart Campus</h1>
-          <Badge variant="secondary" className="bg-white/20 text-white border-0">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-[var(--sc-text-white)]">Smart Campus</h1>
+          <Badge variant="secondary" className="bg-[var(--sc-gray-light)]/20 text-gray-900 dark:text-[var(--sc-text-white)] border-0">
             {userType === "admin" ? "Administrator" : "Student"}
           </Badge>
         </div>
@@ -114,7 +114,7 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
             variant="ghost"
             size="icon"
             onClick={toggleDarkMode}
-            className="text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+            className="text-gray-900 dark:text-[var(--sc-text-white)] hover:bg-[var(--sc-gray-light)]/10 transition-all duration-300 hover:scale-105"
           >
             {theme === "dark" ? (
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all duration-300" />
@@ -128,7 +128,7 @@ export function Navbar({ userType, userName, onMenuClick }: NavbarProps) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="text-white hover:bg-white/10 flex items-center space-x-2 transition-all duration-300 hover:scale-105"
+                className="text-gray-900 dark:text-[var(--sc-text-white)] hover:bg-[var(--sc-gray-light)]/10 flex items-center space-x-2 transition-all duration-300 hover:scale-105"
               >
                 <User className="h-5 w-5" />
                 <span className="hidden md:inline cursor-pointer">{userName}</span>

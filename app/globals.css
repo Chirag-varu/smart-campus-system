@@ -1,2 +1,42 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
+:root {
+  --sc-black: #000000;
+  --sc-white: #FFFFFF;
+  --sc-gray-light: #E5E5E5;
+  --sc-gray-medium: #808080;
+  --sc-gray-dark: #1A1A1A;
+
+  --sc-bg-black: #121212;
+  --sc-text-white: #FAFAFA;
+  --sc-accent-gray: #2E2E2E;
+  --sc-border-gray: #B3B3B3;
+  --sc-muted-text: #737373;
+
+  --sc-pure-black: #000000;
+  --sc-pure-white: #FFFFFF;
+  --sc-off-white: #F5F5F5;
+  --sc-charcoal: #333333;
+  --sc-silver: #C0C0C0;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--sc-charcoal), var(--sc-black));
+}
+
+.bg-app {
+  background-color: var(--sc-off-white);
+}
+
+.bg-app-dark {
+  background-color: var(--sc-bg-black);
+}
+
+.text-muted-foreground {
+  color: var(--sc-muted-text);
+}
+
+.border-default {
+  border-color: var(--sc-border-gray);
+}

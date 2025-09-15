@@ -6,36 +6,56 @@ import { RegisterForm } from "@/components/auth/register-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true)
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen gradient-primary flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 transition-colors duration-300">
-        <div className="w-full max-w-md md:max-w-lg lg:max-w-xl">
+      <div className="min-h-screen flex items-center justify-center bg-app dark:bg-app-dark p-6 relative overflow-hidden">
+        {/* Floating background circles */}
+        <div className="absolute inset-0 -z-10" />
+
+        {/* Auth Card */}
+        <div className="w-full max-w-md md:max-w-lg">
           <div className="text-center mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 animate-fade-in">Smart Campus</h1>
-            <p className="text-white/80 animate-fade-in-delay text-base md:text-lg">Resource Management System</p>
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-[var(--sc-text-white)]">Smart Campus</h1>
+            <p className="text-gray-600 dark:text-[var(--sc-muted-text)] mt-2 text-base md:text-lg">Resource Management System</p>
           </div>
 
-          <Card className="backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-0 shadow-2xl transition-all duration-300 hover:shadow-3xl animate-slide-up">
+          <Card className="rounded-2xl shadow-xl backdrop-blur-lg bg-[var(--sc-white)]/95 dark:bg-[var(--sc-accent-gray)]/95 border border-default">
             <CardHeader className="text-center">
-              <CardTitle className="text-xl md:text-2xl gradient-text">{isLogin ? "Welcome Back" : "Join Smart Campus"}</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-[var(--sc-text-white)]">
+                {isLogin ? "Welcome Back 👋" : "Join Smart Campus 🚀"}
+              </CardTitle>
+              <CardDescription className="mt-1 text-gray-600 dark:text-[var(--sc-muted-text)]">
                 {isLogin ? "Sign in to access your dashboard" : "Create your account to get started"}
               </CardDescription>
             </CardHeader>
+
             <CardContent>
-              {isLogin ? <LoginForm /> : <RegisterForm />}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={isLogin ? "login" : "register"}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {isLogin ? <LoginForm /> : <RegisterForm />}
+                </motion.div>
+              </AnimatePresence>
 
               <div className="mt-6 text-center">
                 <Button
-                  variant="ghost"
+                  variant="link"
                   onClick={() => setIsLogin(!isLogin)}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200"
+                  className="text-sm text-gray-900 dark:text-[var(--sc-text-white)] hover:underline"
                 >
-                  {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                  {isLogin
+                    ? "Don't have an account? Sign up"
+                    : "Already have an account? Sign in"}
                 </Button>
               </div>
             </CardContent>
