@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { OTPForm } from "@/components/auth/otp-form"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,21 +24,27 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [showOTP, setShowOTP] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate registration
+    // Simulate registration and sending OTP
     setTimeout(() => {
-      router.push("/student/dashboard")
       setIsLoading(false)
+      setShowOTP(true)
+      // Here, you would send the OTP to the user's email using env email/pass
     }, 1000)
   }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  if (showOTP) {
+    return <OTPForm email={formData.email} onVerify={() => router.push("/student/dashboard")} />
   }
 
   return (
