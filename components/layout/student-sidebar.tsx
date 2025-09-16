@@ -11,8 +11,8 @@ interface StudentSidebarProps {
 
 const sidebarItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, directLink: false },
-  { id: "resources", label: "Resources", icon: Search, directLink: false },
-  { id: "bookings", label: "Bookings", icon: Calendar, directLink: false },
+  { id: "resources", label: "Resources", icon: Search, directLink: false, href: "/student/resources" },
+  { id: "bookings", label: "Bookings", icon: Calendar, directLink: false, href: "/student/bookings" },
   { id: "checkin", label: "QR Check-In", icon: QrCode, directLink: false },
   { id: "profile", label: "Profile", icon: User, directLink: false },
 ]
@@ -37,8 +37,16 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
               } 
             : { 
                 onClick: () => {
-                  if (item.id === "bookings" && window.location.pathname !== "/student/bookings") {
-                    window.location.href = "/student/bookings";
+                  const pathMapping = {
+                    "dashboard": "/student/dashboard",
+                    "resources": "/student/resources",
+                    "bookings": "/student/bookings",
+                    "checkin": "/student/checkin", 
+                    "profile": "/student/profile"
+                  };
+                  
+                  if (pathMapping[item.id as keyof typeof pathMapping] && window.location.pathname !== pathMapping[item.id as keyof typeof pathMapping]) {
+                    window.location.href = pathMapping[item.id as keyof typeof pathMapping];
                   } else {
                     onTabChange(item.id);
                   }
