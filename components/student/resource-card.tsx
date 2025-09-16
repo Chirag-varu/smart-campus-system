@@ -17,6 +17,7 @@ interface Resource {
   description: string
   amenities: string[]
   image: string
+  location?: string
 }
 
 interface ResourceCardProps {
@@ -71,54 +72,81 @@ export function ResourceCard({ resource }: ResourceCardProps) {
     }
   }
 
+  // Get the variant based on status
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "available":
+        return "success"
+      case "booked":
+        return "destructive"
+      case "maintenance":
+        return "warning"
+      default:
+        return "secondary"
+    }
+  }
+
   return (
     <>
-      <Card className="overflow-hidden  ">
+      <Card className="overflow-hidden flex flex-col h-full transition-all hover:shadow-md">
         <div className="relative">
           <Image
             src={getImagePath(resource.name) || "/placeholder.svg"}
             alt={resource.name}
-            width={300}
-            height={200}
+            width={600}
+            height={400}
             className="w-full h-48 object-cover"
           />
-          <Badge className={`absolute top-2 right-2 ${getStatusColor(resource.status)} text-white border-0`}>
+          <Badge 
+            variant={getStatusVariant(resource.status) as any}
+            className="absolute top-3 right-3 capitalize"
+          >
             {getStatusText(resource.status)}
           </Badge>
+          
+          <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2">
+            <Badge variant="outline" className="bg-white/90 text-foreground text-xs">
+              {resource.type}
+            </Badge>
+          </div>
         </div>
 
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-lg">{resource.name}</CardTitle>
-              <CardDescription className="flex items-center gap-1 mt-1">
-                <MapPin className="h-4 w-4" />
-                {resource.type}
-              </CardDescription>
-            </div>
-          </div>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">{resource.name}</CardTitle>
+          <CardDescription className="flex items-center gap-1">
+            <MapPin className="h-3.5 w-3.5" />
+            {resource.location || resource.type + " Area"}
+          </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{resource.description}</p>
+        <CardContent className="space-y-3 flex-grow">
+          <p className="text-sm text-muted-foreground line-clamp-2">{resource.description}</p>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
+              <Users className="h-3.5 w-3.5" />
               <span>Capacity: {resource.capacity}</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-1">
-            {resource.amenities.map((amenity, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+          <div className="flex flex-wrap gap-1 pt-1">
+            {resource.amenities.slice(0, 3).map((amenity, index) => (
+              <Badge key={index} variant="outline" className="text-xs bg-muted/50">
                 {amenity}
               </Badge>
             ))}
+            {resource.amenities.length > 3 && (
+              <Badge variant="outline" className="text-xs bg-muted/50">
+                +{resource.amenities.length - 3}
+              </Badge>
+            )}
           </div>
-
+        </CardContent>
+        
+        <div className="px-6 pb-6 mt-auto">
           <Button
-            className="w-full gradient-primary   text-white"
+            className="w-full"
+            variant={resource.status === "available" ? "default" : "secondary"}
             disabled={resource.status !== "available"}
             onClick={() => setShowBookingModal(true)}
           >
@@ -128,7 +156,7 @@ export function ResourceCard({ resource }: ResourceCardProps) {
                 ? "Currently Booked"
                 : "Under Maintenance"}
           </Button>
-        </CardContent>
+        </div>
       </Card>
 
       <BookingModal resource={resource} isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} />

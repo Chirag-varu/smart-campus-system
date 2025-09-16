@@ -49,56 +49,79 @@ export function ResourceBrowser() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text mb-1">Browse Resources</h1>
-          <p className="text-muted-foreground text-base">Find and book campus resources for your needs.</p>
+      <div className="bg-gradient-to-r from-background to-muted/30 border rounded-lg p-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Browse Resources</h1>
+            <p className="text-muted-foreground text-base">Find and book campus resources for your needs.</p>
+          </div>
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search resources..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-64 pl-9"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Select value={filterType} onValueChange={setFilterType}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Library">Library</SelectItem>
+                  <SelectItem value="Sports">Sports</SelectItem>
+                  <SelectItem value="Labs">Labs</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="available">Available</SelectItem>
+                  <SelectItem value="booked">Booked</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto">
-          <Input
-            placeholder="Search resources..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-64 shadow-sm border border-border focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
-          />
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-full md:w-40">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="Library">Library</SelectItem>
-              <SelectItem value="Sports">Sports</SelectItem>
-              <SelectItem value="Labs">Labs</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full md:w-40">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="booked">Booked</SelectItem>
-              <SelectItem value="maintenance">Maintenance</SelectItem>
-            </SelectContent>
-          </Select>
+      </div>
+
+      {/* Resources Count */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-muted-foreground">
+          Showing {filteredResources.length} resources
+        </div>
+        <div className="text-sm">
+          {filterType !== 'all' && `Filtered by ${filterType}`}
+          {filterType !== 'all' && filterStatus !== 'all' && ' • '}
+          {filterStatus !== 'all' && `Status: ${filterStatus}`}
         </div>
       </div>
 
       {/* Resource Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
         {filteredResources.map((resource) => (
           <ResourceCard key={(resource as any)._id || (resource as any).id} resource={resource as any} />
         ))}
       </div>
 
       {filteredResources.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <Card className="border-dashed border-2">
+          <CardContent className="text-center py-16 flex flex-col items-center">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <Filter className="h-8 w-8 text-muted-foreground" />
+            </div>
             <h3 className="text-lg font-medium mb-2">No resources found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Try adjusting your search or filter criteria to find available resources.
+            </p>
           </CardContent>
         </Card>
       )}
