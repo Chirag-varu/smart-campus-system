@@ -76,13 +76,13 @@ export function ResourceCard({ resource }: ResourceCardProps) {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case "available":
-        return "success"
+        return "outline"
       case "booked":
-        return "destructive"
+        return "outline"
       case "maintenance":
-        return "warning"
+        return "outline"
       default:
-        return "secondary"
+        return "outline"
     }
   }
 
@@ -99,13 +99,19 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           />
           <Badge 
             variant={getStatusVariant(resource.status) as any}
-            className="absolute top-3 right-3 capitalize"
+            className={`absolute top-3 right-3 capitalize px-2 py-1 text-xs ${
+              resource.status === "available" 
+                ? "border-green-200 bg-green-100 text-green-800 hover:bg-green-100"
+                : resource.status === "booked"
+                  ? "border-red-200 bg-red-100 text-red-800 hover:bg-red-100"
+                  : "border-yellow-200 bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
+            }`}
           >
             {getStatusText(resource.status)}
           </Badge>
           
           <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2">
-            <Badge variant="outline" className="bg-white/90 text-foreground text-xs">
+            <Badge variant="outline" className="bg-white/90 text-foreground text-xs hover:bg-white/90">
               {resource.type}
             </Badge>
           </div>
@@ -113,8 +119,8 @@ export function ResourceCard({ resource }: ResourceCardProps) {
 
         <CardHeader className="pb-2">
           <CardTitle className="text-lg">{resource.name}</CardTitle>
-          <CardDescription className="flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5" />
+          <CardDescription className="flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" />
             {resource.location || resource.type + " Area"}
           </CardDescription>
         </CardHeader>
@@ -130,13 +136,13 @@ export function ResourceCard({ resource }: ResourceCardProps) {
           </div>
 
           <div className="flex flex-wrap gap-1 pt-1">
-            {resource.amenities.slice(0, 3).map((amenity, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-muted/50">
+            {resource.amenities && resource.amenities.slice(0, 3).map((amenity, index) => (
+              <Badge key={index} variant="outline" className="text-xs py-0 h-5 border-slate-200 hover:border-slate-300 bg-transparent">
                 {amenity}
               </Badge>
             ))}
-            {resource.amenities.length > 3 && (
-              <Badge variant="outline" className="text-xs bg-muted/50">
+            {resource.amenities && resource.amenities.length > 3 && (
+              <Badge variant="outline" className="text-xs py-0 h-5 border-slate-200 hover:border-slate-300 bg-transparent">
                 +{resource.amenities.length - 3}
               </Badge>
             )}
@@ -144,18 +150,19 @@ export function ResourceCard({ resource }: ResourceCardProps) {
         </CardContent>
         
         <div className="px-6 pb-6 mt-auto">
-          <Button
-            className="w-full"
-            variant={resource.status === "available" ? "default" : "secondary"}
-            disabled={resource.status !== "available"}
-            onClick={() => setShowBookingModal(true)}
-          >
-            {resource.status === "available"
-              ? "Book Now"
-              : resource.status === "booked"
-                ? "Currently Booked"
-                : "Under Maintenance"}
-          </Button>
+          {resource.status === "available" ? (
+            <Button
+              className="w-full"
+              variant="default"
+              onClick={() => setShowBookingModal(true)}
+            >
+              Book Now
+            </Button>
+          ) : (
+            <div className="text-center py-2 text-sm text-muted-foreground">
+              Under Maintenance
+            </div>
+          )}
         </div>
       </Card>
 

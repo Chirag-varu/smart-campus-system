@@ -187,7 +187,7 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
                       <Clock className="h-4 w-4 mr-2" />
                       {slot}
                       {isBooked && (
-                        <Badge variant="destructive" className="ml-auto text-xs">
+                        <Badge variant="outline" className="ml-auto text-xs border-red-200 bg-red-100 text-red-800 hover:bg-red-100">
                           Booked
                         </Badge>
                       )}
@@ -215,7 +215,7 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
             <div>
               <div className="flex flex-wrap gap-2">
                 {resource.amenities.map((amenity, index) => (
-                  <Badge key={index} variant="secondary">
+                  <Badge key={index} variant="outline" className="bg-muted/50 hover:bg-muted/50">
                     {amenity}
                   </Badge>
                 ))}

@@ -12,7 +12,7 @@ interface StudentSidebarProps {
 const sidebarItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, directLink: false },
   { id: "resources", label: "Resources", icon: Search, directLink: false },
-  { id: "bookings", label: "Bookings", icon: Calendar, directLink: true, href: "/student/bookings" },
+  { id: "bookings", label: "Bookings", icon: Calendar, directLink: false },
   { id: "checkin", label: "QR Check-In", icon: QrCode, directLink: false },
   { id: "profile", label: "Profile", icon: User, directLink: false },
 ]
@@ -36,7 +36,13 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
                 }
               } 
             : { 
-                onClick: () => onTabChange(item.id)
+                onClick: () => {
+                  if (item.id === "bookings" && window.location.pathname !== "/student/bookings") {
+                    window.location.href = "/student/bookings";
+                  } else {
+                    onTabChange(item.id);
+                  }
+                }
               };
           
           return (

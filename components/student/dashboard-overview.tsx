@@ -155,11 +155,6 @@ export function DashboardOverview() {
           ) : bookings.upcoming.length > 0 ? (
             <div className="space-y-4">
               {bookings.upcoming.slice(0, 3).map((booking) => {
-                const statusVariant = booking.status === "confirmed" ? "success" : 
-                                     booking.status === "pending" ? "warning" : 
-                                     booking.status === "cancelled" ? "destructive" : 
-                                     "secondary";
-                
                 return (
                   <div
                     key={booking._id}
@@ -186,7 +181,15 @@ export function DashboardOverview() {
                         </div>
                       </div>
                     </div>
-                    <Badge variant={statusVariant as any}>
+                    <Badge 
+                      variant="outline" 
+                      className={`${
+                        booking.status === "confirmed" ? "border-green-200 bg-green-100 text-green-800 hover:bg-green-100" : 
+                        booking.status === "pending" ? "border-amber-200 bg-amber-100 text-amber-800 hover:bg-amber-100" : 
+                        booking.status === "cancelled" ? "border-red-200 bg-red-100 text-red-800 hover:bg-red-100" : 
+                        "border-slate-200 bg-slate-100 text-slate-800 hover:bg-slate-100"
+                      }`}
+                    >
                       {booking.status}
                     </Badge>
                   </div>
@@ -213,8 +216,9 @@ export function DashboardOverview() {
 
           <div className="mt-6 text-center">
             <Button 
-              className="gradient-primary text-white" 
+              variant="default"
               onClick={() => router.push('/student/bookings')}
+              className="bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
             >
               View All Bookings
             </Button>
@@ -259,7 +263,7 @@ export function DashboardOverview() {
                           {new Date(booking.date).toLocaleDateString()}
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-xs px-2 py-0 h-5">
+                      <Badge variant="outline" className="text-xs px-2 py-0 h-5 border-blue-200 bg-blue-100 text-blue-800 hover:bg-blue-100">
                         Completed
                       </Badge>
                     </div>
@@ -284,27 +288,25 @@ export function DashboardOverview() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <ArrowRight className="h-3.5 w-3.5 text-primary" />
-            </div>
+            <ArrowRight className="h-4 w-4" />
             Quick Actions
           </CardTitle>
           <CardDescription>Common tasks you might want to do</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="border-dashed hover:border-primary/50 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => router.push('/student/resources')}>
-              <CardContent className="flex flex-col items-center justify-center p-6 text-center h-24">
-                <Search className="h-6 w-6 mb-2 text-primary" />
+            <div className="border border-dashed rounded-lg hover:border-primary/50 hover:bg-muted/50 transition-colors cursor-pointer flex justify-center items-center" onClick={() => router.push('/student/resources')}>
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <Search className="h-6 w-6 mb-2" />
                 <span className="font-medium">Browse Resources</span>
-              </CardContent>
-            </Card>
-            <Card className="border-dashed hover:border-primary/50 hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => router.push('/student/nearby')}>
-              <CardContent className="flex flex-col items-center justify-center p-6 text-center h-24">
-                <MapPin className="h-6 w-6 mb-2 text-primary" />
+              </div>
+            </div>
+            <div className="border border-dashed rounded-lg hover:border-primary/50 hover:bg-muted/50 transition-colors cursor-pointer flex justify-center items-center" onClick={() => router.push('/student/nearby')}>
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <MapPin className="h-6 w-6 mb-2" />
                 <span className="font-medium">Find Nearby</span>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -14,11 +14,23 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
 
-  // On mount, sync activeTab with localStorage (client only)
+  // On mount, sync activeTab with localStorage or URL params (client only)
   useEffect(() => {
-    const storedTab = typeof window !== 'undefined' ? localStorage.getItem('studentActiveTab') : null;
-    if (storedTab && storedTab !== activeTab) {
-      setActiveTab(storedTab);
+    if (typeof window !== 'undefined') {
+      // Check URL query params first
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      
+      if (tabParam && ['dashboard', 'resources', 'checkin', 'profile'].includes(tabParam)) {
+        setActiveTab(tabParam);
+        localStorage.setItem('studentActiveTab', tabParam);
+      } else {
+        // Fall back to localStorage if no valid tab param
+        const storedTab = localStorage.getItem('studentActiveTab');
+        if (storedTab && storedTab !== activeTab) {
+          setActiveTab(storedTab);
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

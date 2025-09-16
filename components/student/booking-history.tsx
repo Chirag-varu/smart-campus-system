@@ -101,15 +101,15 @@ export function BookingHistory() {
 const getStatusVariant = (status: string) => {
   switch (status) {
     case "confirmed":
-      return "success"
+      return "outline"
     case "pending":
-      return "warning"
+      return "outline"
     case "completed":
-      return "default"
+      return "outline"
     case "cancelled":
-      return "destructive"
+      return "outline"
     default:
-      return "secondary"
+      return "outline"
   }
 }
 
@@ -149,7 +149,16 @@ const BookingCard = ({
       )}
     </CardContent>
     <CardFooter className="pt-0 flex items-center justify-between">
-      <Badge variant={getStatusVariant(booking.status) as any} className="capitalize">
+      <Badge 
+        variant={getStatusVariant(booking.status) as any} 
+        className={`capitalize ${
+          booking.status === "confirmed" ? "border-green-200 bg-green-100 text-green-800 hover:bg-green-100" : 
+          booking.status === "pending" ? "border-amber-200 bg-amber-100 text-amber-800 hover:bg-amber-100" : 
+          booking.status === "completed" ? "border-blue-200 bg-blue-100 text-blue-800 hover:bg-blue-100" : 
+          booking.status === "cancelled" ? "border-red-200 bg-red-100 text-red-800 hover:bg-red-100" : 
+          "border-slate-200 bg-slate-100 text-slate-800 hover:bg-slate-100"
+        }`}
+      >
         {booking.status}
       </Badge>
       {showCancel && (booking.status === "pending" || booking.status === "approved" || booking.status === "confirmed") && (
