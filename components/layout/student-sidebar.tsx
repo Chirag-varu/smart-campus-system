@@ -10,12 +10,11 @@ interface StudentSidebarProps {
 }
 
 const sidebarItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "resources", label: "Resources", icon: Search },
-  { id: "bookings", label: "Bookings", icon: Calendar },
-  { id: "checkin", label: "QR Check-In", icon: QrCode },
-  { id: "history", label: "History", icon: History },
-  { id: "profile", label: "Profile", icon: User },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, directLink: false },
+  { id: "resources", label: "Resources", icon: Search, directLink: false },
+  { id: "bookings", label: "Bookings", icon: Calendar, directLink: true, href: "/student/bookings" },
+  { id: "checkin", label: "QR Check-In", icon: QrCode, directLink: false },
+  { id: "profile", label: "Profile", icon: User, directLink: false },
 ]
 
 export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) {
@@ -26,6 +25,20 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
       <nav className="flex-1 px-2 space-y-1 overflow-y-auto mt-4">
         {sidebarItems.map((item) => {
           const Icon = item.icon
+          
+          const buttonProps = item.directLink 
+            ? { 
+                as: "a", 
+                href: item.href,
+                onClick: (e: React.MouseEvent) => {
+                  e.preventDefault();
+                  window.location.href = item.href as string;
+                }
+              } 
+            : { 
+                onClick: () => onTabChange(item.id)
+              };
+          
           return (
             <Button
               key={item.id}
@@ -34,7 +47,7 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
                 "w-full justify-start text-gray-700 dark:text-[var(--sc-text-white)] hover:bg-[var(--sc-gray-light)]/10 transition-all duration-200 rounded-md px-4 py-2 text-base",
                 activeTab === item.id && "bg-[var(--sc-gray-light)]/20 text-gray-900 dark:text-[var(--sc-text-white)] border-l-4 border-primary font-semibold",
               )}
-              onClick={() => onTabChange(item.id)}
+              {...buttonProps}
             >
               <Icon className="mr-3 h-5 w-5" />
               {item.label}

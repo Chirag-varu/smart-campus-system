@@ -3,7 +3,7 @@
 This document describes the implemented features, APIs, data expectations, and how the app integrates with MongoDB, sessions, and email OTP.
 
 ### Authentication & Sessions
-- Registration (`POST /api/register`): Creates an unverified user, stores hashed password (bcrypt), generates a 6-digit OTP, and sends via Nodemailer (Gmail example). Env: `EMAIL_USER`, `EMAIL_PASS`.
+- Registration (`POST /api/register`): Creates an unverified user with name, email, phone number, student ID and department. Stores hashed password (bcrypt), generates a 6-digit OTP, and sends via Nodemailer (Gmail example). Env: `EMAIL_USER`, `EMAIL_PASS`. Phone number validation enforced on both frontend and backend.
 - Verify OTP (`POST /api/verify-otp`): Validates OTP and marks user as verified.
 - Generate OTP (`POST /api/generate-otp`): Issues a new OTP for an email and sends it.
 - Login (`POST /api/login`): Verifies credentials with bcrypt and sets an `HttpOnly` cookie `session` with a server-stored session token.

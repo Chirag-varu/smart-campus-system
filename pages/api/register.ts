@@ -5,8 +5,14 @@ import bcrypt from 'bcryptjs';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
-  const { firstName, lastName, email, studentId, department, password, role } = req.body;
-  if (!email || !password) return res.status(400).json({ error: 'Missing required fields' });
+  const { firstName, lastName, email, phone, studentId, department, password, role } = req.body;
+  if (!email || !password || !phone) return res.status(400).json({ error: 'Missing required fields' });
+  
+  // Validate phone number format
+  const phoneRegex = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({ error: 'Invalid phone number format' });
+  }
 
   try {
     const client = await clientPromise;
@@ -22,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       firstName,
       lastName,
       email,
+      phone,
       studentId,
       department,
       role: role === 'admin' ? 'admin' : 'student',

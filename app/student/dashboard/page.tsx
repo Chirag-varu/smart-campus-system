@@ -38,7 +38,11 @@ export default function StudentDashboard() {
       case "resources":
         return <ResourceBrowser />
       case "bookings":
-        return <BookingHistory />
+        // Redirect to the dedicated bookings page
+        if (typeof window !== 'undefined') {
+          window.location.href = '/student/bookings';
+        }
+        return null;
       case "checkin":
         return <QRCheckIn />
       case "profile":

@@ -17,6 +17,7 @@ export function RegisterForm() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     studentId: "",
     department: "",
     password: "",
@@ -29,6 +30,13 @@ export function RegisterForm() {
   const [showOTP, setShowOTP] = useState(false)
   const router = useRouter()
 
+  // Basic phone number validation
+  const validatePhoneNumber = (phone: string): boolean => {
+    // This regex allows for various phone formats: (123) 456-7890, 123-456-7890, 1234567890
+    const phoneRegex = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -39,6 +47,13 @@ export function RegisterForm() {
         setError('Passwords do not match')
         return
       }
+      
+      // Validate phone number
+      if (!validatePhoneNumber(formData.phone)) {
+        setIsLoading(false)
+        setError('Please enter a valid phone number')
+        return
+      }
 
       const resp = await fetch('/api/register', {
         method: 'POST',
@@ -47,6 +62,7 @@ export function RegisterForm() {
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
+          phone: formData.phone,
           studentId: formData.studentId,
           department: formData.department,
           password: formData.password,
@@ -116,6 +132,20 @@ export function RegisterForm() {
           placeholder="john.doe@campus.edu"
           value={formData.email}
           onChange={(e) => handleInputChange("email", e.target.value)}
+          required
+          className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+        />
+      </div>
+
+      {/* Phone Number Field */}
+      <div className="space-y-2">
+        <Label htmlFor="phone">Phone Number</Label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="(123) 456-7890"
+          value={formData.phone}
+          onChange={(e) => handleInputChange("phone", e.target.value)}
           required
           className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
         />
