@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 interface OTPFormProps {
   email: string
@@ -79,10 +80,22 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
         />
         {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
         <Button type="submit" className="w-full mt-6" disabled={isLoading}>
-          {isLoading ? "Verifying..." : "Verify"}
+          {isLoading ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner size="sm" className="mr-2" /> Verifying...
+            </span>
+          ) : (
+            "Verify"
+          )}
         </Button>
         <Button type="button" variant="outline" className="w-full mt-2" onClick={handleResend} disabled={isLoading}>
-          Resend OTP
+          {isLoading ? (
+            <span className="flex items-center justify-center">
+              <LoadingSpinner size="sm" className="mr-2" /> Sending...
+            </span>
+          ) : (
+            "Resend OTP"
+          )}
         </Button>
       </Card>
     </form>

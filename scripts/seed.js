@@ -141,21 +141,91 @@ async function main() {
       );
     }
 
-    // Sample bookings (pending and approved)
+    // Sample bookings (with different statuses and dates)
     const student = await users.findOne({ email: "chiragvaru.main@gmail.com" })
     const lib = await resources.findOne({ name: "Library Study Room A" })
     const lab = await resources.findOne({ name: "Computer Lab 2" })
-    if (student && lib && lab) {
+    const basketball = await resources.findOne({ name: "Basketball Court" })
+    const chemlab = await resources.findOne({ name: "Chemistry Lab 1" })
+
+    if (student && lib && lab && basketball && chemlab) {
+      // Current date for reference
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth() + 1; // JavaScript months are 0-indexed
+      const currentDay = today.getDate();
+
+      // UPCOMING BOOKINGS (Future dates)
+      
+      // Tomorrow
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+      
+      // Next Week
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+      const nextWeekStr = `${nextWeek.getFullYear()}-${String(nextWeek.getMonth() + 1).padStart(2, '0')}-${String(nextWeek.getDate()).padStart(2, '0')}`;
+      
+      // Two Weeks Out
+      const twoWeeks = new Date(today);
+      twoWeeks.setDate(today.getDate() + 14);
+      const twoWeeksStr = `${twoWeeks.getFullYear()}-${String(twoWeeks.getMonth() + 1).padStart(2, '0')}-${String(twoWeeks.getDate()).padStart(2, '0')}`;
+      
+      // PAST BOOKINGS (Past dates)
+      
+      // Last week
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+      const lastWeekStr = `${lastWeek.getFullYear()}-${String(lastWeek.getMonth() + 1).padStart(2, '0')}-${String(lastWeek.getDate()).padStart(2, '0')}`;
+      
+      // Two weeks ago
+      const twoWeeksAgo = new Date(today);
+      twoWeeksAgo.setDate(today.getDate() - 14);
+      const twoWeeksAgoStr = `${twoWeeksAgo.getFullYear()}-${String(twoWeeksAgo.getMonth() + 1).padStart(2, '0')}-${String(twoWeeksAgo.getDate()).padStart(2, '0')}`;
+      
+      // Last Month
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(today.getMonth() - 1);
+      const lastMonthStr = `${lastMonth.getFullYear()}-${String(lastMonth.getMonth() + 1).padStart(2, '0')}-${String(lastMonth.getDate()).padStart(2, '0')}`;
+
+      // UPCOMING BOOKINGS - Different statuses
       await bookings.updateOne(
-        { userId: student._id, resourceId: lib._id, date: "2025-09-20", timeSlot: "10:00 AM - 11:00 AM" },
-        { $setOnInsert: { userId: student._id, resourceId: lib._id, date: "2025-09-20", timeSlot: "10:00 AM - 11:00 AM", status: 'pending', createdAt: new Date() } },
+        { userId: student._id, resourceId: lib._id, date: tomorrowStr, timeSlot: "10:00 AM - 12:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: lib._id, date: tomorrowStr, timeSlot: "10:00 AM - 12:00 PM", status: 'pending', createdAt: new Date() } },
         { upsert: true }
-      )
+      );
+      
       await bookings.updateOne(
-        { userId: student._id, resourceId: lab._id, date: "2025-09-21", timeSlot: "2:00 PM - 3:00 PM" },
-        { $setOnInsert: { userId: student._id, resourceId: lab._id, date: "2025-09-21", timeSlot: "2:00 PM - 3:00 PM", status: 'approved', createdAt: new Date() } },
+        { userId: student._id, resourceId: lab._id, date: nextWeekStr, timeSlot: "2:00 PM - 4:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: lab._id, date: nextWeekStr, timeSlot: "2:00 PM - 4:00 PM", status: 'approved', createdAt: new Date() } },
         { upsert: true }
-      )
+      );
+      
+      await bookings.updateOne(
+        { userId: student._id, resourceId: basketball._id, date: twoWeeksStr, timeSlot: "6:00 PM - 8:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: basketball._id, date: twoWeeksStr, timeSlot: "6:00 PM - 8:00 PM", status: 'approved', createdAt: new Date() } },
+        { upsert: true }
+      );
+      
+      // PAST BOOKINGS - Different statuses
+      await bookings.updateOne(
+        { userId: student._id, resourceId: lib._id, date: lastWeekStr, timeSlot: "1:00 PM - 3:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: lib._id, date: lastWeekStr, timeSlot: "1:00 PM - 3:00 PM", status: 'completed', createdAt: new Date(lastWeek) } },
+        { upsert: true }
+      );
+      
+      await bookings.updateOne(
+        { userId: student._id, resourceId: chemlab._id, date: twoWeeksAgoStr, timeSlot: "9:00 AM - 11:00 AM" },
+        { $setOnInsert: { userId: student._id, resourceId: chemlab._id, date: twoWeeksAgoStr, timeSlot: "9:00 AM - 11:00 AM", status: 'completed', createdAt: new Date(twoWeeksAgo) } },
+        { upsert: true }
+      );
+      
+      await bookings.updateOne(
+        { userId: student._id, resourceId: basketball._id, date: lastMonthStr, timeSlot: "4:00 PM - 6:00 PM" },
+        { $setOnInsert: { userId: student._id, resourceId: basketball._id, date: lastMonthStr, timeSlot: "4:00 PM - 6:00 PM", status: 'cancelled', createdAt: new Date(lastMonth) } },
+        { upsert: true }
+      );
     }
 
     const usersCount = await users.countDocuments();

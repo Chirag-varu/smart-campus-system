@@ -27,7 +27,7 @@ export default function HomePage() {
           <Card className="rounded-2xl shadow-xl backdrop-blur-lg bg-[var(--sc-white)]/95 dark:bg-[var(--sc-accent-gray)]/95 border border-default">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-[var(--sc-text-white)]">
-                {isLogin ? "Welcome Back 👋" : "Join Smart Campus 🚀"}
+                {isLogin ? "Welcome Back 👋" : "Join Smart Campus"}
               </CardTitle>
               <CardDescription className="mt-1 text-gray-600 dark:text-[var(--sc-muted-text)]">
                 {isLogin ? "Sign in to access your dashboard" : "Create your account to get started"}

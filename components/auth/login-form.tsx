@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, User, Lock } from "lucide-react"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -114,9 +115,9 @@ export function LoginForm() {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
-            ) : (
               <Eye className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>
@@ -132,11 +133,17 @@ export function LoginForm() {
         className="w-full gradient-primary text-white hover:opacity-90 transition-all duration-200"
         disabled={isLoading}
       >
-        {isLoading ? "Signing in..." : "Sign In"}
+        {isLoading ? (
+          <span className="flex items-center justify-center">
+            <LoadingSpinner size="sm" className="mr-2" /> Signing in...
+          </span>
+        ) : (
+          "Sign In"
+        )}
       </Button>
 
       {/* Demo credentials (subtle hint) */}
-      <div className="text-[11px] text-muted-foreground mt-2 space-y-0.5">
+      <div className="text-[11px] text-muted-foreground mt-2 space-y-0.5 bg-gray-100 p-4 font-semibold">
         <div>Demo Admin: admin@campus.test / admin123</div>
         <div>Demo Student: chiragvaru.main@gmail.com / student123</div>
       </div>

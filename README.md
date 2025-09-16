@@ -1,108 +1,163 @@
-## Smart Campus System
+# 📘 Smart Campus System
 
-A Next.js 14 + TypeScript application for a smart campus platform, featuring student and admin dashboards, resource booking, email-based OTP verification, and MongoDB persistence.
+A comprehensive platform built with Next.js 14 + TypeScript that streamlines campus operations by integrating student & admin dashboards, resource booking, attendance, notices, and verification systems.
 
-### Tech Stack
+The system enhances transparency, reduces manual effort, and ensures efficient utilization of campus resources.
+
+## 🎯 Problem Statement
+
+Traditional campus resource management (classrooms, labs, equipment, events, and student services) often suffers from:
+
+- **Manual booking & allocation** ➝ delays and conflicts
+- **Poor communication** between students, faculty, and administration
+- **Lack of real-time updates & transparency**
+- **Scattered systems** (attendance, resources, notices, exams handled separately)
+
+## 💡 Our Solution
+
+The Smart Campus System provides a unified digital platform where:
+
+- **Students** can book and track resources (labs, rooms, library, equipment).
+- **Faculty/Admin** can manage scheduling, approvals, and resource monitoring.
+- **Integrated dashboards** show analytics (usage, availability, attendance).
+- **Secure OTP/email verification** ensures authentic access.
+
+## 🚀 Features
+
+- 🔐 **User Authentication** – Student & Admin login with OTP verification
+- 📅 **Resource Booking** – Real-time booking of labs, classrooms, equipment
+- 📊 **Dashboards**
+  - **Student Dashboard**: bookings, notices, attendance
+  - **Admin Dashboard**: resource allocation, analytics, approvals
+- 📢 **Notice & Communication System** – Digital circulars & announcements
+- 📈 **Analytics & Reports** – Usage patterns, resource availability, trends
+- 📚 **Extensible Modules** (future scope) – Attendance tracking, exam scheduling, fee management, event management
+
+## 🛠️ Tech Stack
+
+### Frontend:
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript, React 18
-- **UI**: Tailwind CSS 4, Radix UI, Lucide Icons
-- **State/Forms**: React Hook Form, Zod
+- **Styling**: Tailwind CSS 4, Radix UI, Lucide Icons
 - **Charts/UX**: Recharts, Embla Carousel
-- **Backend**: API routes (`pages/api`), MongoDB (official driver)
-- **Email**: Nodemailer (Gmail example)
 
-### Prerequisites
+### Backend:
+- Next.js API Routes
+- MongoDB (Official Driver)
+- Authentication & Email: Nodemailer + OTP
+
+### Other Tools:
+- React Hook Form + Zod (form validation)
+- Docker (optional for deployment)
+- Cloud Hosting: Vercel (frontend) + MongoDB Atlas
+
+## ⚙️ Prerequisites
+
 - Node.js 18+ and npm (or pnpm)
 - MongoDB database (Atlas or self-hosted)
-- Email SMTP account (example uses Gmail with an App Password)
+- SMTP account for email OTP (e.g., Gmail, SendGrid, Mailgun)
 
-### Getting Started
-1. Clone and install dependencies
+## 🚀 Getting Started
+
 ```bash
-git clone <repo-url>
+# Clone and install dependencies
+git clone https://github.com/Chirag-varu/smart-campus-system.git
 cd smart-campus-system
 npm install
-# or: pnpm install
-```
 
-2. Create an environment file `.env.local` in the project root
-```bash
-# Database
-MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<db>?retryWrites=true&w=majority
+# Set up environment variables
+cp .env.example .env.local
 
-# Email (Gmail example — use an App Password)
-EMAIL_USER=youremail@gmail.com
-EMAIL_PASS=your_app_password
-```
-
-3. Run the development server
-```bash
+# Run dev server
 npm run dev
-# open http://localhost:3000
 ```
 
-### Scripts
-- `npm run dev`: Start the Next.js dev server
-- `npm run build`: Build for production
-- `npm run start`: Start the production server
-- `npm run lint`: Run linting
-- `npm run seed`: Seed MongoDB with sample users and resources
+Visit: http://localhost:3000
 
-### Project Structure (high-level)
+## 📂 Project Structure
+
 ```
-app/                    # App Router pages/layouts (Next.js 14)
-  admin/dashboard/      # Admin dashboard pages
-  student/dashboard/    # Student dashboard pages
-components/             # UI/components (Radix-based, forms, layout, etc.)
-lib/mongodb.ts          # MongoDB client helper (uses MONGODB_URI)
-pages/api/              # API routes (email OTP, registration)
+app/                    # Next.js App Router pages/layouts
+  admin/dashboard/      # Admin dashboard
+  student/dashboard/    # Student dashboard
+components/             # UI components
+  admin/                # Admin-specific components
+  auth/                 # Authentication components
+  layout/               # Layout components (navbars, sidebars)
+  student/              # Student-specific components
+  ui/                   # Reusable UI components
+lib/mongodb.ts          # MongoDB client helper
+pages/api/              # API routes (OTP, booking, etc.)
 public/                 # Static assets
 styles/                 # Global styles
 ```
 
-### Environment Variables
-- **MONGODB_URI**: MongoDB connection string used by `lib/mongodb.ts`
-- **EMAIL_USER / EMAIL_PASS**: SMTP credentials used by `pages/api/register.ts` to send OTP emails
+## 🔑 Environment Variables
 
-### Seeding the Database
-Populate MongoDB with sample users and resources:
-```bash
-npm run seed
 ```
-The script reads `MONGODB_URI` from your environment or `.env.local`. It upserts:
-- Admin and sample student users (verified=true)
-- Resource documents matching the UI mock data
+MONGODB_URI=your_mongo_connection
+EMAIL_USER=youremail@example.com
+EMAIL_PASS=your_app_password
+```
 
-### API Endpoints
-- `POST /api/register`
-  - Body: `{ firstName, lastName, email, studentId, department, password }`
-  - Creates a user (unverified), generates an OTP, and emails it
+## 📡 API Endpoints
 
-- `POST /api/verify-otp`
-  - Body: `{ email, otp }`
-  - Verifies the user and removes the OTP record
+- **POST** `/api/register` – Create user, send OTP
+- **POST** `/api/verify-otp` – Verify OTP and activate account
+- **POST** `/api/login` – Authenticate users, create session
+- **POST** `/api/logout` – End user session
+- **GET** `/api/me` – Get current user information
+- **GET** `/api/resources` – Fetch available resources
+- **GET** `/api/booking-history` – Get user's booking history
+- **POST** `/api/bookings` – Create resource booking
+- **DELETE** `/api/booking-history` – Cancel a booking
 
-Note: Passwords are stored in plain text in this starter. For production, integrate hashing (e.g., bcrypt) and add rate-limiting and email delivery hardening.
+## 🧪 Development Notes
 
-### Development Notes
-- Tailwind CSS 4 is configured via `@tailwindcss/postcss` and `postcss.config.mjs`
-- UI components leverage Radix primitives and utility helpers
-- Recharts is used for simple analytics visualizations on dashboards
+- **Seeding the Database**:
+  ```bash
+  npm run seed
+  ```
+  This creates sample users, resources, and bookings for testing.
 
-### Deployment
-- Recommended: Vercel for Next.js hosting
-  - Set env vars (`MONGODB_URI`, `EMAIL_USER`, `EMAIL_PASS`) in project settings
-  - Ensure an SMTP provider suitable for production (consider provider like SendGrid, Resend, Mailgun)
+- Tailwind CSS 4 + PostCSS for styling
+- Radix UI for accessible components
+- Recharts for analytics
 
-### Troubleshooting
-- MongoDB connection error: verify `MONGODB_URI` and IP allowlist on Atlas
-- Email not sending: confirm SMTP creds, enable “less secure app” alternative via App Passwords, or use a dedicated provider
-- OTP not received: check spam folder and confirm transporter configuration
+## 📦 Deployment
 
-### License
-Add your license here (e.g., MIT).
+- **Frontend**: Vercel
+- **Database**: MongoDB Atlas
+- **SMTP**: SendGrid / Mailgun for production-ready mailing
 
-### Additional Docs
-- See `DOCUMENTATION.md` for a full list of features and API endpoints.
+## 🧩 Smart India Hackathon Project
 
+This project was developed as part of the Smart India Hackathon (SIH), addressing the challenge of campus resource management and digitization of educational institutions.
 
+## 📝 License
+
+MIT License
+
+Copyright (c) 2025 Chirag Varu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## 📚 Additional Documentation
+
+See `DOCUMENTATION.md` for a full list of features and API endpoints.

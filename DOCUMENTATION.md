@@ -40,7 +40,10 @@ Session storage:
 - Get booked slots (`GET /api/bookings?resourceId=...&date=YYYY-MM-DD`): Returns `{ slots: string[] }`.
 - Admin list (`GET /api/admin/bookings`): Returns bookings enriched with `user` and `resource`.
 - Approve/Reject (`PATCH /api/bookings`): Body `{ id, status: 'approved' | 'rejected' }` (admin only).
+- Student Booking History (`GET /api/booking-history`): Returns the current user's bookings separated into upcoming and past arrays.
+- Cancel Booking (`DELETE /api/booking-history?bookingId=...`): Allows students to cancel their own bookings by updating status to 'cancelled'.
 - UI (`components/student/booking-modal.tsx`): Fetches booked time slots and posts new bookings; updates UI accordingly.
+- UI (`components/student/booking-history.tsx`): Displays student's booking history with separate tabs for upcoming and past bookings.
 
 ### Components Updated
 - `components/auth/register-form.tsx`: Calls `/api/register`, then shows OTP form.
@@ -49,6 +52,7 @@ Session storage:
 - `components/layout/navbar.tsx`: Adds Working "Sign Out" that posts to `/api/logout`, clears local state, and redirects to `/`.
 - `components/student/resource-browser.tsx`: Switches from mock data to DB-backed API.
 - `components/student/booking-modal.tsx`: Integrated with bookings API.
+- `components/student/booking-history.tsx`: Replaced static data with dynamic data from MongoDB, adding loading states, error handling, and dynamic booking cancellation.
 
 ### API Summary
 - POST `/api/register` — body: `{ firstName, lastName, email, studentId, department, password }` → `200 { success: true }`
@@ -60,11 +64,15 @@ Session storage:
 - GET `/api/resources` — returns `{ resources }`
 - GET `/api/bookings?resourceId&date` — returns `{ slots }`
 - POST `/api/bookings` — body: `{ resourceId, date, timeSlot }` → `201 { success: true }`
+- GET `/api/booking-history` — returns `{ upcoming: [], past: [] }` bookings for authenticated user
+- DELETE `/api/booking-history?bookingId=...` — cancels a booking → `200 { success: true }`
 
 ### Notes & Next Steps
 - Security: Consider switching to NextAuth or adding CSRF protection, rate-limiting, and email provider hardening.
-- Bookings: Add admin approval/rejection flows and student booking history views.
+- Bookings: Added student booking history views with cancellation functionality.
 - Roles: Add role/permissions to `users` (e.g., `role: 'student' | 'admin'`).
 - Data Models: If migrating to Mongoose, define schemas for `User`, `Resource`, `Booking`, and align APIs.
+- Booking History: Consider adding pagination for users with many bookings.
+- Notifications: Add notification system to alert users when booking status changes.
 
 

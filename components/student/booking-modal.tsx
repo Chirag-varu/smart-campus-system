@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { Clock, CalendarIcon, Users, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ButtonSpinner } from "@/components/ui/button-spinner"
+import { LoadingState } from "@/components/ui/loading-state"
 
 interface Resource {
   id?: number
@@ -49,24 +51,34 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
   const { toast } = useToast()
 
   useEffect(() => {
     if (!selectedDate) return
     const load = async () => {
+      setIsLoadingSlots(true)
       const dateKey = selectedDate.toISOString().split('T')[0]
       const resourceId = (resource._id || resource.id)?.toString()
-      if (!resourceId) return
+      if (!resourceId) {
+        setIsLoadingSlots(false)
+        return
+      }
       try {
         const resp = await fetch(`/api/bookings?resourceId=${encodeURIComponent(resourceId)}&date=${encodeURIComponent(dateKey)}`)
-        if (!resp.ok) return setBookedSlots([])
-        const data = await resp.json()
-        setBookedSlots(data.slots || [])
+        if (!resp.ok) {
+          setBookedSlots([])
+        } else {
+          const data = await resp.json()
+          setBookedSlots(data.slots || [])
+        }
       } catch {
         setBookedSlots([])
+      } finally {
+        setIsLoadingSlots(false)
+        setSelectedTimeSlot("")
       }
-      setSelectedTimeSlot("")
     }
     load()
   }, [selectedDate, resource])
@@ -154,32 +166,36 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
           {/* Time Slots */}
           <div>
             <h3 className="font-medium mb-3">Available Time Slots</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
-              {timeSlots.map((slot) => {
-                const isBooked = isSlotBooked(slot)
-                const isSelected = selectedTimeSlot === slot
+            {isLoadingSlots ? (
+              <LoadingState text="Loading available slots..." className="py-8" />
+            ) : (
+              <div className="space-y-2 max-h-80 overflow-y-auto">
+                {timeSlots.map((slot) => {
+                  const isBooked = isSlotBooked(slot)
+                  const isSelected = selectedTimeSlot === slot
 
-                return (
-                  <Button
-                    key={slot}
-                    variant={isSelected ? "default" : "outline"}
-                    className={`w-full justify-start relative ${
-                      isSelected ? "gradient-primary text-white" : ""
-                    } ${isBooked ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() => !isBooked && setSelectedTimeSlot(slot)}
-                    disabled={isBooked}
-                  >
-                    <Clock className="h-4 w-4 mr-2" />
-                    {slot}
-                    {isBooked && (
-                      <Badge variant="destructive" className="ml-auto text-xs">
-                        Booked
-                      </Badge>
-                    )}
-                  </Button>
-                )
-              })}
-            </div>
+                  return (
+                    <Button
+                      key={slot}
+                      variant={isSelected ? "default" : "outline"}
+                      className={`w-full justify-start relative ${
+                        isSelected ? "gradient-primary text-white" : ""
+                      } ${isBooked ? "opacity-50 cursor-not-allowed" : ""}`}
+                      onClick={() => !isBooked && setSelectedTimeSlot(slot)}
+                      disabled={isBooked}
+                    >
+                      <Clock className="h-4 w-4 mr-2" />
+                      {slot}
+                      {isBooked && (
+                        <Badge variant="destructive" className="ml-auto text-xs">
+                          Booked
+                        </Badge>
+                      )}
+                    </Button>
+                  )
+                })}
+              </div>
+            )}
 
             {bookedSlots.length > 0 && (
               <Alert className="mt-4">
@@ -223,9 +239,9 @@ export function BookingModal({ resource, isOpen, onClose }: BookingModalProps) {
           <Button
             onClick={handleBooking}
             disabled={isLoading || !selectedDate || !selectedTimeSlot || isSlotBooked(selectedTimeSlot)}
-            className="flex-1 gradient-primary   text-white"
+            className="flex-1 gradient-primary text-white"
           >
-            {isLoading ? "Booking..." : "Confirm Booking"}
+            {isLoading ? <ButtonSpinner text="Booking..." /> : "Confirm Booking"}
           </Button>
         </div>
       </DialogContent>

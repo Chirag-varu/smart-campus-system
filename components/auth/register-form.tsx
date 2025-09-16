@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Eye, EyeOff } from "lucide-react"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -139,13 +140,13 @@ export function RegisterForm() {
             <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-primary/20">
               <SelectValue placeholder="Select department" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="computer-science">Computer Science</SelectItem>
-              <SelectItem value="engineering">Engineering</SelectItem>
-              <SelectItem value="business">Business</SelectItem>
-              <SelectItem value="arts">Arts & Sciences</SelectItem>
-              <SelectItem value="medicine">Medicine</SelectItem>
-              <SelectItem value="law">Law</SelectItem>
+            <SelectContent className="bg-gray-100">
+              <SelectItem value="computer-science" className="hover:bg-gray-200">Computer Science</SelectItem>
+              <SelectItem value="engineering" className="hover:bg-gray-200">Engineering</SelectItem>
+              <SelectItem value="business" className="hover:bg-gray-200">Business</SelectItem>
+              <SelectItem value="arts" className="hover:bg-gray-200">Arts & Sciences</SelectItem>
+              <SelectItem value="medicine" className="hover:bg-gray-200">Medicine</SelectItem>
+              <SelectItem value="law" className="hover:bg-gray-200">Law</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -172,9 +173,9 @@ export function RegisterForm() {
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
-            ) : (
               <Eye className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>
@@ -200,9 +201,9 @@ export function RegisterForm() {
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
             {showConfirmPassword ? (
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
-            ) : (
               <Eye className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
             )}
           </Button>
         </div>
@@ -217,7 +218,13 @@ export function RegisterForm() {
         className="w-full gradient-primary text-white hover:opacity-90 transition-all duration-200"
         disabled={isLoading}
       >
-        {isLoading ? "Creating Account..." : "Create Account"}
+        {isLoading ? (
+          <span className="flex items-center justify-center">
+            <LoadingSpinner size="sm" className="mr-2" /> Creating Account...
+          </span>
+        ) : (
+          "Create Account"
+        )}
       </Button>
     </form>
   )
