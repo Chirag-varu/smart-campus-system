@@ -17,7 +17,7 @@ export function StudentLayout({
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background transition-colors duration-300 flex flex-col">
+      <div className="h-screen bg-background transition-colors duration-300 flex flex-col overflow-hidden">
         <Navbar
           userType="student"
           userName="Chirag Varu"
@@ -25,7 +25,7 @@ export function StudentLayout({
         />
 
         {/* Sidebar as drawer on mobile, static on md+ */}
-        <div className="flex-1 flex flex-col md:flex-row">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
           {/* Overlay for mobile drawer */}
           {sidebarOpen && (
             <div
@@ -36,8 +36,8 @@ export function StudentLayout({
           {/* Sidebar */}
           <aside
             className={`
-              fixed z-50 top-0 left-0 h-full w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300
-              md:static md:translate-x-0 md:block
+              fixed z-50 top-0 left-0 h-screen w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300
+              md:static md:translate-x-0 md:block md:h-auto md:flex-shrink-0
               ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}
             style={{ maxWidth: '16rem' }}
@@ -56,7 +56,7 @@ export function StudentLayout({
             />
           </aside>
           {/* Main content */}
-          <main className="flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 w-full overflow-x-auto md:ml-0">
+          <main className="flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 w-full overflow-y-auto overflow-x-hidden md:ml-0">
             {children}
           </main>
         </div>

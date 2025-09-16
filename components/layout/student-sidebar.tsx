@@ -19,7 +19,7 @@ const sidebarItems = [
 
 export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) {
   return (
-    <aside className="h-screen flex flex-col bg-app dark:bg-app-dark border-r border-default shadow-md sticky top-0 z-20 w-64 max-w-full">
+    <aside className="flex flex-col bg-app dark:bg-app-dark border-r border-default shadow-md sticky top-0 h-screen z-20 w-64 max-w-full overflow-hidden">
 
       {/* Navigation */}
       <nav className="flex-1 px-2 space-y-1 overflow-y-auto mt-4">
@@ -71,7 +71,7 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
       </nav>
 
       {/* Logout at bottom */}
-      <div className="px-6 py-4 border-t border-default mt-2">
+      <div className="px-6 py-4 border-t border-default mb-10 pb-10 ">
         <Button
           variant="outline"
           className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20"
