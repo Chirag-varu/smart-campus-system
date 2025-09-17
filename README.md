@@ -2,6 +2,8 @@
 
 A comprehensive platform built with Next.js 14 + TypeScript that streamlines campus operations by integrating student & admin dashboards, resource booking, attendance, notices, and verification systems.
 
+Note: This is the project which was made for SIH Internal Hackthon and got selected 
+
 The system enhances transparency, reduces manual effort, and ensures efficient utilization of campus resources.
 
 ## 🎯 Problem Statement
