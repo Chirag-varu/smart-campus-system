@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/auth/login-form"
 import { RegisterForm } from "@/components/auth/register-form"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,31 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true)
+  const router = useRouter()
+
+  // Check if user is already logged in
+  useEffect(() => {
+    // This is a client-side check in addition to the middleware
+    // for cases where middleware might not catch it
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/status')
+        const data = await response.json()
+        
+        if (data.authenticated) {
+          // Redirect to appropriate dashboard based on user type
+          const userType = localStorage.getItem('userType') || 'student'
+          const redirectPath = userType === 'admin' ? '/admin/dashboard' : '/student/dashboard'
+          router.replace(redirectPath)
+        }
+      } catch (error) {
+        // If there's an error checking auth status, continue showing the login page
+        console.error('Error checking auth status:', error)
+      }
+    }
+    
+    checkAuthStatus()
+  }, [])
 
   return (
     <ErrorBoundary>

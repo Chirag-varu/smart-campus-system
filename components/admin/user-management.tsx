@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,105 +8,127 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
-import { Search, UserPlus, Mail, Calendar, MoreHorizontal, Ban, CheckCircle } from "lucide-react"
+import { Search, UserPlus, Mail, Calendar, MoreHorizontal, Ban, CheckCircle, Loader2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface User {
-  id: number
-  name: string
+  _id: string
+  firstName?: string
+  lastName?: string
+  studentName?: string
   email: string
-  rollNo: string
-  department: string
+  studentId?: string
+  department?: string
+  isActive: boolean
+  role: string
+  createdAt: string
+  lastLogin?: string
+  totalBookings?: number
   status: "active" | "inactive" | "suspended"
-  joinDate: string
-  totalBookings: number
-  lastActive: string
-  avatar?: string
 }
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@university.edu",
-    rollNo: "CS2021001",
-    department: "Computer Science",
-    status: "active",
-    joinDate: "2021-08-15",
-    totalBookings: 24,
-    lastActive: "2 hours ago",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@university.edu",
-    rollNo: "EE2021045",
-    department: "Electrical Engineering",
-    status: "active",
-    joinDate: "2021-08-16",
-    totalBookings: 18,
-    lastActive: "1 day ago",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike.johnson@university.edu",
-    rollNo: "ME2020123",
-    department: "Mechanical Engineering",
-    status: "inactive",
-    joinDate: "2020-08-20",
-    totalBookings: 45,
-    lastActive: "1 week ago",
-  },
-  {
-    id: 4,
-    name: "Sarah Wilson",
-    email: "sarah.wilson@university.edu",
-    rollNo: "CS2021078",
-    department: "Computer Science",
-    status: "suspended",
-    joinDate: "2021-08-18",
-    totalBookings: 12,
-    lastActive: "2 weeks ago",
-  },
-  {
-    id: 5,
-    name: "David Brown",
-    email: "david.brown@university.edu",
-    rollNo: "PH2021056",
-    department: "Physics",
-    status: "active",
-    joinDate: "2021-08-22",
-    totalBookings: 31,
-    lastActive: "3 hours ago",
-  },
-]
-
 export function UserManagement() {
-  const [users, setUsers] = useState(mockUsers)
+  const [users, setUsers] = useState<User[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterDepartment, setFilterDepartment] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
   const { toast } = useToast()
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch('/api/admin/users')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch users')
+        }
+        
+        const data = await response.json()
+        
+        // Transform the data to match our component needs
+        const transformedUsers = data.users.map((user: any) => ({
+          _id: user._id,
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          studentName: user.studentName || '',
+          email: user.email,
+          studentId: user.studentId || user.sapId || '',
+          department: user.department || 'Not specified',
+          isActive: user.isActive !== false,
+          role: user.role || 'student',
+          createdAt: user.createdAt ? new Date(user.createdAt).toISOString().split('T')[0] : 'Unknown',
+          lastLogin: user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never',
+          totalBookings: user.totalBookings || 0,
+          status: user.isActive === false ? 'inactive' : 'active'
+        }))
+        
+        setUsers(transformedUsers)
+      } catch (error) {
+        console.error('Error fetching users:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load users. Please try again.",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
+
   const filteredUsers = users.filter((user) => {
+    const userName = user.studentName || `${user.firstName || ''} ${user.lastName || ''}`.trim();
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.rollNo.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.studentId || '').toLowerCase().includes(searchTerm.toLowerCase())
     const matchesDepartment = filterDepartment === "all" || user.department === filterDepartment
     const matchesStatus = filterStatus === "all" || user.status === filterStatus
 
     return matchesSearch && matchesDepartment && matchesStatus
   })
 
-  const handleStatusChange = (userId: number, newStatus: "active" | "inactive" | "suspended") => {
-    setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, status: newStatus } : user)))
+  const handleStatusChange = async (userId: string, newStatus: "active" | "inactive" | "suspended") => {
+    try {
+      const isActive = newStatus === "active";
+      
+      const response = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          userId, 
+          isActive,
+          status: newStatus
+        }),
+      });
 
-    toast({
-      title: "User Status Updated",
-      description: `User status has been changed to ${newStatus}.`,
-    })
+      if (!response.ok) {
+        throw new Error('Failed to update user status');
+      }
+
+      // Update local state only after successful API call
+      setUsers((prev) => prev.map((user) => 
+        user._id === userId ? { ...user, status: newStatus, isActive } : user
+      ));
+
+      toast({
+        title: "User Status Updated",
+        description: `User status has been changed to ${newStatus}.`,
+      });
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user status. Please try again.",
+        variant: "destructive"
+      });
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -133,7 +155,7 @@ export function UserManagement() {
     }
   }
 
-  const departments = [...new Set(users.map((user) => user.department))]
+  const departments = [...new Set(users.map((user) => user.department).filter(Boolean))]
 
   const stats = [
     { label: "Total Users", value: users.length, color: "text-chart-1" },
@@ -224,81 +246,106 @@ export function UserManagement() {
           <CardDescription>Manage student accounts and their access</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={user.avatar || "/diverse-student-profiles.png"} />
-                    <AvatarFallback>
-                      {user.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div>
-                    <h4 className="font-medium">{user.name}</h4>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{user.rollNo}</span>
-                      <span>•</span>
-                      <span>{user.department}</span>
-                      <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        {user.email}
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3">Loading users...</span>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredUsers.map((user) => {
+                // Handle name display with fallbacks
+                const displayName = user.studentName || 
+                  `${user.firstName || ''} ${user.lastName || ''}`.trim() || 
+                  user.email.split('@')[0];
+                
+                // Create initials from name
+                const initials = displayName
+                  .split(' ')
+                  .map(n => n[0])
+                  .join('')
+                  .toUpperCase();
+                
+                return (
+                  <div
+                    key={user._id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={"/diverse-student-profiles.png"} />
+                        <AvatarFallback>{initials}</AvatarFallback>
+                      </Avatar>
+  
+                      <div>
+                        <h4 className="font-medium">{displayName}</h4>
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                          {user.studentId && (
+                            <>
+                              <span>{user.studentId}</span>
+                              <span>•</span>
+                            </>
+                          )}
+                          {user.department && (
+                            <>
+                              <span>{user.department}</span>
+                              <span>•</span>
+                            </>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {user.email}
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Joined: {user.createdAt}
+                          </div>
+                          <span>•</span>
+                          <span>{user.totalBookings || 0} bookings</span>
+                          <span>•</span>
+                          <span>Last active: {user.lastLogin || 'Never'}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Joined: {user.joinDate}
-                      </div>
-                      <span>•</span>
-                      <span>{user.totalBookings} bookings</span>
-                      <span>•</span>
-                      <span>Last active: {user.lastActive}</span>
+  
+                    <div className="flex items-center gap-3">
+                      <Badge className={`${getStatusColor(user.status)} text-white border-0 flex items-center gap-1`}>
+                        {getStatusIcon(user.status)}
+                        {user.status}
+                      </Badge>
+  
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleStatusChange(user._id, "active")}>
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Activate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(user._id, "inactive")}>
+                            Deactivate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleStatusChange(user._id, "suspended")}
+                            className="text-red-600"
+                          >
+                            <Ban className="h-4 w-4 mr-2" />
+                            Suspend
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Badge className={`${getStatusColor(user.status)} text-white border-0 flex items-center gap-1`}>
-                    {getStatusIcon(user.status)}
-                    {user.status}
-                  </Badge>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleStatusChange(user.id, "active")}>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Activate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleStatusChange(user.id, "inactive")}>
-                        Deactivate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(user.id, "suspended")}
-                        className="text-red-600"
-                      >
-                        <Ban className="h-4 w-4 mr-2" />
-                        Suspend
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
+          
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12">

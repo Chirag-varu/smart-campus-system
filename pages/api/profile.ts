@@ -38,6 +38,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!name && (user.firstName || user.lastName)) {
       name = [user.firstName, user.lastName].filter(Boolean).join(' ');
     }
+
+    // Get user's bookings
+    const bookings = db.collection('bookings');
+    const resources = db.collection('resources');
+    
+    // Total bookings count
+    const totalBookings = await bookings.countDocuments({ userId: userId.toString() });
+    
+    // Calculate total hours booked
+    const userBookings = await bookings.find({ userId: userId.toString() }).toArray();
+    let totalHours = 0;
+    userBookings.forEach(booking => {
+      // Assuming timeSlot is in format "13:00-15:00"
+      if (booking.timeSlot && typeof booking.timeSlot === 'string') {
+        const times = booking.timeSlot.split('-');
+        if (times.length === 2) {
+          const startHour = parseInt(times[0].split(':')[0]);
+          const endHour = parseInt(times[1].split(':')[0]);
+          if (!isNaN(startHour) && !isNaN(endHour)) {
+            totalHours += (endHour - startHour);
+          }
+        }
+      }
+    });
+    
+    // Find favorite resource (most booked)
+    const resourceCounts: Record<string, number> = {};
+    userBookings.forEach(booking => {
+      const resourceId = booking.resourceId?.toString();
+      if (resourceId) {
+        resourceCounts[resourceId] = (resourceCounts[resourceId] || 0) + 1;
+      }
+    });
+    
+    let favoriteResourceName = "None";
+    if (Object.keys(resourceCounts).length > 0) {
+      const favoriteResourceId = Object.entries(resourceCounts)
+        .sort((a, b) => b[1] - a[1])[0][0];
+      
+      try {
+        // Convert string ID to ObjectId
+        const objectId = new ObjectId(favoriteResourceId);
+        const favoriteResource = await resources.findOne({ _id: objectId });
+        
+        if (favoriteResource && favoriteResource.name) {
+          favoriteResourceName = favoriteResource.name;
+        }
+      } catch (error) {
+        console.error("Error fetching favorite resource:", error);
+      }
+    }
+    
+    // Calculate member since year
+    const memberSince = user.createdAt 
+      ? new Date(user.createdAt).getFullYear().toString() 
+      : new Date().getFullYear().toString();
+    
     return res.status(200).json({
       user: {
         name,
@@ -46,6 +103,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         joinDate: user.createdAt ? user.createdAt.toISOString().slice(0, 10) : '',
         phone: user.phone || '',
         department: user.department || '',
+        stats: {
+          totalBookings,
+          totalHours,
+          favoriteResource: favoriteResourceName,
+          memberSince
+        }
       },
     });
   } else if (req.method === 'PUT') {

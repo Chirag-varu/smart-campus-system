@@ -18,6 +18,12 @@ export function StudentProfile() {
     joinDate: "",
     phone: "",
     department: "",
+    stats: {
+      totalBookings: 0,
+      totalHours: 0,
+      favoriteResource: "",
+      memberSince: ""
+    }
   })
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
@@ -59,10 +65,10 @@ export function StudentProfile() {
   }
 
   const stats = [
-    { label: "Total Bookings", value: "24", color: "text-chart-1" },
-    { label: "Hours Booked", value: "48", color: "text-chart-2" },
-    { label: "Favorite Resource", value: "Library", color: "text-chart-3" },
-    { label: "Member Since", value: "2021", color: "text-chart-4" },
+    { label: "Total Bookings", value: profileData.stats?.totalBookings.toString() || "0", color: "text-chart-1" },
+    { label: "Hours Booked", value: profileData.stats?.totalHours.toString() || "0", color: "text-chart-2" },
+    { label: "Favorite Resource", value: profileData.stats?.favoriteResource || "None", color: "text-chart-3" },
+    { label: "Member Since", value: profileData.stats?.memberSince || "N/A", color: "text-chart-4" },
   ]
 
   if (loading) {

@@ -30,8 +30,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 7 days
     await sessions.insertOne({ token, userId: user._id, createdAt: new Date(), expiresAt })
 
-    const cookie = `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-    res.setHeader('Set-Cookie', cookie)
+    // Determine user type (admin or student)
+    const userType = user.role === 'admin' ? 'admin' : 'student'
+    const maxAge = 60 * 60 * 24 * 7 // 7 days in seconds
+
+    // Set cookies
+    const sessionCookie = `session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+    const userTypeCookie = `userType=${userType}; Path=/; SameSite=Lax; Max-Age=${maxAge}${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+    
+    res.setHeader('Set-Cookie', [sessionCookie, userTypeCookie])
 
   // Support both studentName and firstName/lastName for compatibility
   let firstName = user.firstName || (user.studentName ? user.studentName.split(' ')[0] : '')

@@ -42,12 +42,12 @@ async function main() {
     const otps = db.collection("otps");
     const bookings = db.collection("bookings");
 
-    // ✅ Clear old data
+    // Clear old data
     await users.deleteMany({});
     await resources.deleteMany({});
     await otps.deleteMany({});
     await bookings.deleteMany({});
-    console.log("All old data cleared ✅");
+    console.log("All old data cleared");
 
     // Indexes
     await users.createIndex({ email: 1 }, { unique: true });
@@ -162,7 +162,7 @@ async function main() {
     const resourcesCount = await resources.countDocuments();
     const bookingsCount = await bookings.countDocuments();
     console.log(
-      `Seed complete ✅ Users: ${usersCount}, Resources: ${resourcesCount}, Bookings: ${bookingsCount}`
+      `Seed complete Users: ${usersCount}, Resources: ${resourcesCount}, Bookings: ${bookingsCount}`
     );
   } catch (err) {
     console.error("Seed failed:", err);

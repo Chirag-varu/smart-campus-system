@@ -92,7 +92,13 @@ export function RegisterForm() {
   }
 
   if (showOTP) {
-    return <OTPForm email={formData.email} onVerify={() => router.push("/student/dashboard")} />
+    return <OTPForm 
+      email={formData.email} 
+      onVerify={() => {
+        // Redirect to dashboard - the session is already created by the API
+        router.push("/student/dashboard");
+      }} 
+    />
   }
 
   return (

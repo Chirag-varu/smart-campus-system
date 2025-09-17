@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 import clientPromise from '@/lib/mongodb'
+import { ObjectId } from 'mongodb'
 
 function parseCookies(cookieHeader?: string) {
   const header = cookieHeader || ''
@@ -14,7 +15,6 @@ function parseCookies(cookieHeader?: string) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') return res.status(405).end()
   try {
     const client = await clientPromise
     const db = client.db()
@@ -29,19 +29,61 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const me = await users.findOne({ _id: session.userId })
     if (!me || me.role !== 'admin') return res.status(403).json({ error: 'Forbidden' })
 
-    const q = (req.query.q as string) || ''
-    const filter = q
-      ? { $or: [
-          { email: { $regex: q, $options: 'i' } },
-          { firstName: { $regex: q, $options: 'i' } },
-          { lastName: { $regex: q, $options: 'i' } }
-        ] }
-      : {}
-    const list = await users.find(filter).project({ password: 0 }).limit(100).toArray()
-    return res.status(200).json({ users: list })
+    // Handle GET request - List users
+    if (req.method === 'GET') {
+      const q = (req.query.q as string) || ''
+      const filter = q
+        ? { $or: [
+            { email: { $regex: q, $options: 'i' } },
+            { firstName: { $regex: q, $options: 'i' } },
+            { lastName: { $regex: q, $options: 'i' } },
+            { studentName: { $regex: q, $options: 'i' } }
+          ] }
+        : {}
+      
+      // Get total booking count for each user
+      const list = await users.find(filter).project({ password: 0 }).limit(100).toArray()
+      
+      // We could join with bookings data here to get actual booking counts if needed
+      
+      return res.status(200).json({ users: list })
+    } 
+    
+    // Handle PATCH request - Update user status
+    else if (req.method === 'PATCH') {
+      const { userId, isActive, status } = req.body
+      
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' })
+      }
+      
+      // Check if isActive is provided (boolean)
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ error: 'isActive must be a boolean value' })
+      }
+      
+      try {
+        const result = await users.updateOne(
+          { _id: new ObjectId(userId) },
+          { $set: { 
+            isActive, 
+            updatedAt: new Date() 
+          }}
+        )
+        
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ error: 'User not found' })
+        }
+        
+        return res.status(200).json({ success: true, message: 'User status updated' })
+      } catch (error) {
+        console.error('Error updating user:', error)
+        return res.status(500).json({ error: 'Failed to update user' })
+      }
+    } else {
+      return res.status(405).json({ error: 'Method not allowed' })
+    }
   } catch (err) {
     return res.status(500).json({ error: 'Server error', details: err })
   }
 }
-
-

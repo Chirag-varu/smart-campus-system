@@ -43,6 +43,7 @@ export function LoginForm() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('userName', `${data.user.firstName || ''} ${data.user.lastName || ''}`.trim())
         localStorage.setItem('userEmail', data.user.email)
+        localStorage.setItem('userType', userType)
       }
       if (userType === 'student') {
         router.push('/student/dashboard')

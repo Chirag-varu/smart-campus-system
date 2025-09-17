@@ -18,7 +18,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await sessions.deleteOne({ token })
     }
 
-    res.setHeader('Set-Cookie', `session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`)
+    // Clear both session and userType cookies
+    const sessionCookie = `session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+    const userTypeCookie = `userType=; Path=/; SameSite=Lax; Max-Age=0${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+    
+    res.setHeader('Set-Cookie', [sessionCookie, userTypeCookie])
     return res.status(200).json({ success: true })
   } catch (err) {
     return res.status(500).json({ error: 'Server error', details: err })

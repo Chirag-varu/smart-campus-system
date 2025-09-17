@@ -3,100 +3,103 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Users, Calendar, Settings, AlertTriangle, TrendingUp, Clock, CheckSquare, BarChart3 } from "lucide-react"
+import { Users, Calendar, Settings, AlertTriangle, TrendingUp, Clock, CheckSquare, BarChart3, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
+
+interface DashboardData {
+  stats: {
+    totalResources: number;
+    activeBookings: number;
+    totalUsers: number;
+    pendingApprovals: number;
+  };
+  recentActivity: {
+    id: string;
+    action: string;
+    resource: string;
+    user: string;
+    time: string;
+    type: string;
+  }[];
+  upcomingTasks: {
+    id: string;
+    task: string;
+    priority: string;
+    dueDate: string;
+  }[];
+}
 
 export function AdminOverview() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/admin/dashboard');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+        
+        const data = await response.json();
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load dashboard data. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [toast]);
+
   const stats = [
     {
       label: "Total Resources",
-      value: "24",
-      change: "+2 this month",
+      value: dashboardData?.stats?.totalResources?.toString() || "0",
+      change: "Campus resources",
       icon: Settings,
       color: "text-chart-1",
       trend: "up",
     },
     {
       label: "Active Bookings",
-      value: "156",
-      change: "+12% from last week",
+      value: dashboardData?.stats?.activeBookings?.toString() || "0",
+      change: "Current & upcoming",
       icon: Calendar,
       color: "text-chart-2",
       trend: "up",
     },
     {
       label: "Total Users",
-      value: "1,247",
-      change: "+89 new this month",
+      value: dashboardData?.stats?.totalUsers?.toString() || "0",
+      change: "Registered accounts",
       icon: Users,
       color: "text-chart-3",
       trend: "up",
     },
     {
       label: "Pending Approvals",
-      value: "8",
-      change: "Requires attention",
+      value: dashboardData?.stats?.pendingApprovals?.toString() || "0",
+      change: dashboardData?.stats?.pendingApprovals ? "Requires attention" : "No pending requests",
       icon: AlertTriangle,
       color: "text-yellow-600",
       trend: "neutral",
     },
   ]
 
-  const recentActivity = [
-    {
-      id: 1,
-      action: "New resource added",
-      resource: "Conference Room C",
-      user: "Admin User",
-      time: "2 hours ago",
-      type: "resource",
-    },
-    {
-      id: 2,
-      action: "Booking approved",
-      resource: "Computer Lab 1",
-      user: "John Doe",
-      time: "4 hours ago",
-      type: "approval",
-    },
-    {
-      id: 3,
-      action: "Resource maintenance scheduled",
-      resource: "Chemistry Lab 2",
-      user: "System",
-      time: "6 hours ago",
-      type: "maintenance",
-    },
-    {
-      id: 4,
-      action: "New user registered",
-      resource: "Student Portal",
-      user: "Jane Smith",
-      time: "8 hours ago",
-      type: "user",
-    },
-  ]
-
-  const upcomingTasks = [
-    {
-      id: 1,
-      task: "Review pending resource requests",
-      priority: "high",
-      dueDate: "Today",
-    },
-    {
-      id: 2,
-      task: "Update maintenance schedule",
-      priority: "medium",
-      dueDate: "Tomorrow",
-    },
-    {
-      id: 3,
-      task: "Generate monthly usage report",
-      priority: "low",
-      dueDate: "This week",
-    },
-  ]
+  const recentActivity = dashboardData?.recentActivity || [];
+  const upcomingTasks = dashboardData?.upcomingTasks || [];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
