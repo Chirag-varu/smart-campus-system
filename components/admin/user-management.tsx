@@ -155,7 +155,7 @@ export function UserManagement() {
     }
   }
 
-  const departments = [...new Set(users.map((user) => user.department).filter(Boolean))]
+  const departments = [...new Set(users.map((user) => user.department).filter((dept): dept is string => typeof dept === "string" && dept !== ""))]
 
   const stats = [
     { label: "Total Users", value: users.length, color: "text-chart-1" },

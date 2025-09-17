@@ -38,7 +38,7 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
         toast({
           title: 'OTP Verified!',
           description: 'Signup complete. Redirecting to dashboard...',
-          variant: "success"
+          variant: "default"
         })
         
         // Short delay before redirecting for better user experience

@@ -100,7 +100,7 @@ export function ResourceManagement() {
 
     toast({
       title: "Resource Added",
-      description: `${resource.name} has been successfully added.`,
+      description: `${resources[resources.length - 1].name} has been successfully added.`,
     })
   }
 
