@@ -10,6 +10,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
 import { Search, UserPlus, Mail, Calendar, MoreHorizontal, Ban, CheckCircle, Loader2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface User {
   _id: string
@@ -33,6 +43,8 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterDepartment, setFilterDepartment] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
+  const [pendingStatusChange, setPendingStatusChange] = useState<{ userId: string, newStatus: "active" | "inactive" | "suspended" } | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -92,7 +104,16 @@ export function UserManagement() {
     return matchesSearch && matchesDepartment && matchesStatus
   })
 
-  const handleStatusChange = async (userId: string, newStatus: "active" | "inactive" | "suspended") => {
+  const confirmStatusChange = (userId: string, newStatus: "active" | "inactive" | "suspended") => {
+    setPendingStatusChange({ userId, newStatus });
+    setIsStatusDialogOpen(true);
+  };
+
+  const handleStatusChange = async () => {
+    if (!pendingStatusChange) return;
+    
+    const { userId, newStatus } = pendingStatusChange;
+    
     try {
       const isActive = newStatus === "active";
       
@@ -128,6 +149,9 @@ export function UserManagement() {
         description: "Failed to update user status. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setPendingStatusChange(null);
+      setIsStatusDialogOpen(false);
     }
   }
 
@@ -323,15 +347,15 @@ export function UserManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleStatusChange(user._id, "active")}>
+                          <DropdownMenuItem onClick={() => confirmStatusChange(user._id, "active")}>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Activate
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusChange(user._id, "inactive")}>
+                          <DropdownMenuItem onClick={() => confirmStatusChange(user._id, "inactive")}>
                             Deactivate
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleStatusChange(user._id, "suspended")}
+                            onClick={() => confirmStatusChange(user._id, "suspended")}
                             className="text-red-600"
                           >
                             <Ban className="h-4 w-4 mr-2" />
@@ -356,6 +380,36 @@ export function UserManagement() {
           )}
         </CardContent>
       </Card>
+
+      {/* Status Change Confirmation Dialog */}
+      <AlertDialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Change User Status</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingStatusChange?.newStatus === "active" && "Are you sure you want to activate this user account?"}
+              {pendingStatusChange?.newStatus === "inactive" && "Are you sure you want to deactivate this user account?"}
+              {pendingStatusChange?.newStatus === "suspended" && 
+                "Are you sure you want to suspend this user account? This will prevent the user from accessing the system."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleStatusChange} 
+              className={
+                pendingStatusChange?.newStatus === "active" 
+                  ? "bg-green-600 hover:bg-green-700" 
+                  : pendingStatusChange?.newStatus === "inactive"
+                  ? "bg-gray-600 hover:bg-gray-700"
+                  : "bg-red-600 hover:bg-red-700"
+              }
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

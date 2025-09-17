@@ -14,6 +14,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
@@ -104,10 +114,24 @@ export function ResourceManagement() {
     })
   }
 
-  const handleDeleteResource = async (id: string) => {
-    const resp = await fetch(`/api/admin/resources?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+  const [resourceToDelete, setResourceToDelete] = useState<string | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const confirmDeleteResource = (id: string) => {
+    setResourceToDelete(id)
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleDeleteResource = async () => {
+    if (!resourceToDelete) return
+
+    const resp = await fetch(`/api/admin/resources?id=${encodeURIComponent(resourceToDelete)}`, { method: 'DELETE' })
     if (!resp.ok) return
-    setResources((prev) => prev.filter((resource) => resource._id !== id))
+    
+    setResources((prev) => prev.filter((resource) => resource._id !== resourceToDelete))
+    setIsDeleteDialogOpen(false)
+    setResourceToDelete(null)
+    
     toast({
       title: "Resource Deleted",
       description: "Resource has been successfully deleted.",
@@ -345,7 +369,7 @@ export function ResourceManagement() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleDeleteResource(resource._id)}
+                  onClick={() => confirmDeleteResource(resource._id)}
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -365,6 +389,24 @@ export function ResourceManagement() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this resource?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the resource and remove it from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteResource} className="bg-red-600 hover:bg-red-700 text-white">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -119,7 +119,7 @@ export function OTPForm({ email, onVerify }: OTPFormProps) {
                   <LoadingSpinner size="sm" className="mr-2 animate-spin" /> Verifying...
                 </span>
               ) : (
-                "Verify"
+                <span className="font-semibold">Verify</span>
               )}
             </Button>
             <Button 

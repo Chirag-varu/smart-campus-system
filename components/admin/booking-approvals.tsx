@@ -5,6 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { CheckCircle, XCircle, Clock, Calendar, MapPin, User } from "lucide-react"
 
@@ -16,12 +26,15 @@ interface BookingRequest {
   timeSlot: string
   status: "pending" | "approved" | "rejected"
   createdAt: string
+  reason?: string
 }
 
 const mockBookingRequests: BookingRequest[] = []
 
 export function BookingApprovals() {
   const [bookingRequests, setBookingRequests] = useState<BookingRequest[]>(mockBookingRequests)
+  const [pendingAction, setPendingAction] = useState<{ id: string, status: "approved" | "rejected" } | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -35,7 +48,16 @@ export function BookingApprovals() {
     })()
   }, [])
 
-  const handleApproval = async (id: string, status: "approved" | "rejected") => {
+  const confirmApproval = (id: string, status: "approved" | "rejected") => {
+    setPendingAction({ id, status })
+    setIsDialogOpen(true)
+  }
+
+  const handleApproval = async () => {
+    if (!pendingAction) return
+
+    const { id, status } = pendingAction
+    
     try {
       const resp = await fetch('/api/bookings', {
         method: 'PATCH',
@@ -46,15 +68,21 @@ export function BookingApprovals() {
         toast({ title: 'Error', description: 'Failed to update booking', variant: 'destructive' })
         return
       }
-      setBookingRequests((prev) => prev.map((request) => (request._id === id ? { ...request, status } : request)))
+      
+      setBookingRequests((prev) => 
+        prev.map((request) => (request._id === id ? { ...request, status } : request))
+      )
 
       const action = status === "approved" ? "approved" : "rejected"
-    toast({
-      title: `Booking ${action}`,
-      description: `The booking request has been ${action}.`,
-    })
+      toast({
+        title: `Booking ${action}`,
+        description: `The booking request has been ${action}.`,
+      })
     } catch {
       toast({ title: 'Error', description: 'Failed to update booking', variant: 'destructive' })
+    } finally {
+      setPendingAction(null)
+      setIsDialogOpen(false)
     }
   }
 
@@ -123,7 +151,7 @@ export function BookingApprovals() {
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground mb-4">Requested on: {request.requestDate}</div>
+        <div className="text-xs text-muted-foreground mb-4">Requested on: {request.createdAt}</div>
 
         {request.reason && (
           <div className="mb-4 p-3 bg-muted/50 rounded-lg">
@@ -135,14 +163,14 @@ export function BookingApprovals() {
         {showActions && request.status === "pending" && (
           <div className="flex gap-3">
             <Button
-              onClick={() => handleApproval(request._id, "approved")}
+              onClick={() => confirmApproval(request._id, "approved")}
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Approve
             </Button>
             <Button
-              onClick={() => handleApproval(request._id, "rejected")}
+              onClick={() => confirmApproval(request._id, "rejected")}
               variant="outline"
               className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
@@ -236,7 +264,7 @@ export function BookingApprovals() {
             </CardHeader>
             <CardContent className="space-y-4">
               {approvedRequests.map((request) => (
-                <BookingCard key={request.id} request={request} />
+                <BookingCard key={request._id} request={request} />
               ))}
             </CardContent>
           </Card>
@@ -250,12 +278,37 @@ export function BookingApprovals() {
             </CardHeader>
             <CardContent className="space-y-4">
               {rejectedRequests.map((request) => (
-                <BookingCard key={request.id} request={request} />
+                <BookingCard key={request._id} request={request} />
               ))}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Confirmation Dialog for Approval/Rejection */}
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingAction?.status === "approved" ? "Approve Booking Request" : "Reject Booking Request"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingAction?.status === "approved" 
+                ? "Are you sure you want to approve this booking request? This will confirm the reservation for the student."
+                : "Are you sure you want to reject this booking request? The student will be notified that their request was denied."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleApproval} 
+              className={pendingAction?.status === "approved" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+            >
+              {pendingAction?.status === "approved" ? "Approve" : "Reject"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

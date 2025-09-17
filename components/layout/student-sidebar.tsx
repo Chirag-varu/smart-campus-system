@@ -3,6 +3,17 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Search, Calendar, History, User, QrCode } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface StudentSidebarProps {
   activeTab: string
@@ -72,18 +83,38 @@ export function StudentSidebar({ activeTab, onTabChange }: StudentSidebarProps) 
 
       {/* Logout at bottom */}
       <div className="px-6 py-4 border-t border-default mb-10 pb-10 ">
-        <Button
-          variant="outline"
-          className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20"
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/');
-            }
-          }}
-        >
-          <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" /></svg>
-          Logout
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+            >
+              <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" /></svg>
+              Logout
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You will be redirected to the login page.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/');
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Logout
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Responsive: hide on mobile, add menu button elsewhere if needed */}
